@@ -29,6 +29,7 @@
         <pmd.version>6.52.0</pmd.version>
         <checkstyle-plugin.version>3.2.0</checkstyle-plugin.version>
         <checkstyle.version>10.5.0</checkstyle.version>
+        <log4j.version>2.12.4</log4j.version>
 
         <!-- SonarCloud setup -->
         <sonar.projectKey>SvenWoltmann_advent-of-code-2022</sonar.projectKey>
@@ -45,6 +46,22 @@
 
 
     <dependencies>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-api</artifactId>
+            <version>${log4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
+            <version>${log4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-slf4j-impl</artifactId>
+            <version>${log4j.version}</version>
+        </dependency>
+
         <dependency>
             <groupId>com.github.spotbugs</groupId>
             <artifactId>spotbugs-annotations</artifactId>
