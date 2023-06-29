@@ -4,40 +4,45 @@ import io.aoc._2015.utils.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.List;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.stream.IntStream;
 
 public class Problem {
     private static final Logger logger = LoggerFactory.getLogger(Problem.class);
+
+    public int part1(String input) {
+        return getCaloriesSums(input).max().orElse(0);
+    }
+
+    public int part2(String input) {
+        return getCaloriesSums(input)
+                .boxed()
+                .sorted(Comparator.reverseOrder())
+                .limit(3)
+                .mapToInt(Integer::valueOf)
+                .sum();
+    }
+
+
+    private IntStream getCaloriesSums(String input) {
+        final String[] blocks = input.split("\\n\\n");
+        return Arrays.stream(blocks)
+                .mapToInt(this::sum);
+    }
+
+    private int sum(String input) {
+        return input.lines()
+                .mapToInt(Integer::parseInt)
+                .sum();
+    }
+
     public static void main(String[] args) {
-        var problem = new Problem();
-        var is = problem.getFileFromResourceAsStream("day1/input.txt");
-        logger.info("test");
-//        Files.readString(Path.of())
+        final String inputFile = Utils.readInputFileAsString(1, "input.txt");
+        final Problem problem = new Problem();
 
-//        Utils utils = new Utils();
-//        List<String> strings = utils.readInputFile("1", "input.txt");
-//        strings.forEach(logger::info);
+        logger.info("Aoc2022, Day1 Problem, Part1: " + problem.part1(inputFile));
+        logger.info("Aoc2022, Day1 Problem, Part1: " + problem.part2(inputFile));
     }
 
-    private InputStream getFileFromResourceAsStream(String fileName) {
-
-        // The class loader that loaded the class
-        ClassLoader classLoader = getClass().getClassLoader();
-        InputStream inputStream = classLoader.getResourceAsStream(fileName);
-
-        // the stream holding the file content
-        if (inputStream == null) {
-            throw new IllegalArgumentException("file not found! " + fileName);
-        } else {
-            return inputStream;
-        }
-
-    }
 }
