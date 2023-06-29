@@ -25,7 +25,7 @@ public class Problem {
     }
 
     private IntStream getCaloriesSums(String input) {
-        final String[] blocks = input.split("\\n\\n");
+        final String[] blocks = input.split("\r\n\r\n");
         return Arrays.stream(blocks)
                 .mapToInt(this::sum);
     }
