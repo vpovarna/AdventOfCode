@@ -37,21 +37,20 @@ public class Problem {
         }
 
         var firstWord = strings.get(0);
-        final Set<String> firstStringUniqueLetters = Arrays.stream(firstWord.split(""))
+         Set<String> firstStringUniqueLetters = Arrays
+                 .stream(firstWord.split(""))
                 .collect(Collectors.toSet());
 
-        String uniqueLetter = "";
         for (int i = 1; i < strings.size(); i++) {
-            final String currentWord = strings.get(i);
-            for (String s: currentWord.split("")) {
-                if (firstStringUniqueLetters.contains(s)) {
-                    uniqueLetter = s;
-                }
-            }
+            firstStringUniqueLetters = Arrays.stream(strings.get(i).split(""))
+                    .distinct()
+                    .filter(firstStringUniqueLetters::contains)
+                    .collect(Collectors.toSet());
         }
 
-        System.out.println(uniqueLetter);
-        return uniqueLetter;
+        return firstStringUniqueLetters.stream()
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("Unable to fetch the first element"));
     }
 
     private int getPriority(Character character) {
