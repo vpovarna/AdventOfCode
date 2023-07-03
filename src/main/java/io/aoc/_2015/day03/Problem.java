@@ -12,52 +12,60 @@ public class Problem {
     private static final Logger logger = LoggerFactory.getLogger(Problem.class);
 
     public int part1(String input) {
-        return input.lines()
+        final Stream<Set<String>> commonLetters = input.lines()
                 .map(this::splitWord)
-                .map(this::getCommonLetters)
-                .filter(set -> set.size() == 1)
-                .map(Problem::getFirstString)
-                .map(s -> s.charAt(0))
-                .mapToInt(this::getPriority)
-                .sum();
+                .map(this::getCommonLetters);
+        return calculatePriorities(commonLetters);
     }
 
     public int part2(String input) {
-        final List<List<String>> groupOfLines = groupOfThreeLines(input.lines());
-        return groupOfLines.stream()
-                .map(this::getCommonLettersFromTheThreeLinesGroup)
+        final List<List<String>> groupOfLines = groupLines(input.lines());
+        final Stream<Set<String>> commonLetters = groupOfLines.stream()
+                .map(this::getCommonLettersFromTheThreeLinesGroup);
+        return calculatePriorities(commonLetters);
+    }
+
+    private int calculatePriorities(Stream<Set<String>> commonLetters) {
+        return commonLetters
+                .filter(set -> set.size() == 1)
+                .map(this::getFirstString)
                 .map(s -> s.charAt(0))
-                .mapToInt(this::getPriority)
+                .mapToInt(this::calculatePriority)
                 .sum();
     }
 
-    private String getCommonLettersFromTheThreeLinesGroup(List<String> strings) {
+    private Set<String> getCommonLettersFromTheThreeLinesGroup(List<String> strings) {
         if (strings.size() != 3) {
             throw new IllegalArgumentException("The provided list doesn't have the exact 3 elements!");
         }
 
         var firstWord = strings.get(0);
-         Set<String> firstStringUniqueLetters = Arrays
-                 .stream(firstWord.split(""))
-                .collect(Collectors.toSet());
+        Set<String> uniqueLetters = getStringUniqueLetters(firstWord);
 
         for (int i = 1; i < strings.size(); i++) {
-            firstStringUniqueLetters = Arrays.stream(strings.get(i).split(""))
-                    .distinct()
-                    .filter(firstStringUniqueLetters::contains)
-                    .collect(Collectors.toSet());
+            uniqueLetters = getUniqueLetters(strings.get(i), uniqueLetters);
         }
-
-        return firstStringUniqueLetters.stream()
-                .findFirst()
-                .orElseThrow(() -> new RuntimeException("Unable to fetch the first element"));
+        return uniqueLetters;
     }
 
-    private int getPriority(Character character) {
+    private Set<String> getUniqueLetters(String str, Set<String> firstStringUniqueLetters) {
+        return Arrays.stream(str.split(""))
+                .distinct()
+                .filter(firstStringUniqueLetters::contains)
+                .collect(Collectors.toSet());
+    }
+
+    private Set<String> getStringUniqueLetters(String firstWord) {
+        return Arrays
+                .stream(firstWord.split(""))
+                .collect(Collectors.toSet());
+    }
+
+    private int calculatePriority(Character character) {
         return (Character.isUpperCase(character)) ? (int) character - 38 : (int) character - 96;
     }
 
-    private static String getFirstString(Set<String> set) {
+    private String getFirstString(Set<String> set) {
         return set.stream()
                 .findFirst()
                 .orElseThrow(() -> new RuntimeException("Unable to fetch the first element"));
@@ -72,17 +80,16 @@ public class Problem {
     }
 
     private Set<String> getCommonLetters(String[] wordParts) {
-        final Set<String> firstHalfLetters = Arrays.stream(wordParts[0].split(""))
-                .collect(Collectors.toSet());
+        final Set<String> firstHalfLetters = getStringUniqueLetters(wordParts[0]);
         return Arrays.stream(wordParts[1].split(""))
                 .distinct()
                 .filter(firstHalfLetters::contains)
                 .collect(Collectors.toSet());
     }
 
-    private List<List<String>> groupOfThreeLines(Stream<String> lines) {
+    private List<List<String>> groupLines(Stream<String> lines) {
         final List<List<String>> result = new ArrayList<>();
-        for (var iterator = lines.iterator(); iterator.hasNext();) {
+        for (var iterator = lines.iterator(); iterator.hasNext(); ) {
             result.add(List.of(iterator.next(), iterator.next(), iterator.next()));
         }
 

@@ -41,7 +41,7 @@ public class Problem {
         final Problem problem = new Problem();
 
         logger.info("Aoc2022, Day1 Problem, Part1: " + problem.part1(inputFile));
-        logger.info("Aoc2022, Day1 Problem, Part1: " + problem.part2(inputFile));
+        logger.info("Aoc2022, Day1 Problem, Part2: " + problem.part2(inputFile));
     }
 
 }
