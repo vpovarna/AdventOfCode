@@ -14,9 +14,15 @@ class Interval {
         return "Interval[x=" + x + ", y=" + y +"]";
     }
 
-    public static boolean checkIfTwoIntervalsOverlaps(Interval interval1, Interval interval2) {
-
+    public static boolean checkIfTwoIntervalsFullyOverlaps(Interval interval1, Interval interval2) {
         return (interval1.x <= interval2.x && interval1.y >= interval2.y) ||
                 (interval2.x <= interval1.x && interval2.y >= interval1.y);
+    }
+
+    public static boolean checkIfTwoIntervalsOverlaps(Interval interval1, Interval interval2) {
+        return (interval1.x <= interval2.x && interval2.x <= interval1.y) ||
+                (interval2.x <= interval1.x && interval1.x <= interval2.y) ||
+                (interval1.x <= interval2.x && interval1.y >= interval2.y) ||
+                (interval1.x >= interval2.x && interval1.y <= interval2.y);
     }
 }

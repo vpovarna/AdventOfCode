@@ -7,7 +7,9 @@ import org.slf4j.LoggerFactory;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import static io.aoc._2015.day04.Interval.checkIfTwoIntervalsFullyOverlaps;
 import static io.aoc._2015.day04.Interval.checkIfTwoIntervalsOverlaps;
 
 public class Problem {
@@ -16,11 +18,21 @@ public class Problem {
     public static final String DASH = "-";
 
     public int part1(String input) {
-        return (int) input.lines()
-                .map(this::getIntervals)
-                .filter(intervals -> intervals.length == 2)
+        return (int) inputParser(input)
+                .filter(intervals -> checkIfTwoIntervalsFullyOverlaps(intervals[0], intervals[1]))
+                .count();
+    }
+
+    public int part2(String input) {
+        return (int) inputParser(input)
                 .filter(intervals -> checkIfTwoIntervalsOverlaps(intervals[0], intervals[1]))
                 .count();
+    }
+
+    private Stream<Interval[]> inputParser(String input) {
+        return input.lines()
+                .map(this::getIntervals)
+                .filter(intervals -> intervals.length == 2);
     }
 
     private Interval[] getIntervals(String s) {
@@ -47,6 +59,7 @@ public class Problem {
         final Problem problem = new Problem();
         final String inputFile = Utils.readInputFileAsString(4, "input.txt");
         logger.info("Aoc2022, Day4 Problem, Part1: " + problem.part1(inputFile));
-//        logger.info("Aoc2022, Day3 Problem, Part2: " + problem.part2(inputFile));
+        logger.info("Aoc2022, Day4 Problem, Part2: " + problem.part2(inputFile));
     }
+
 }
