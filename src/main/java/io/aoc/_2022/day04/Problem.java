@@ -13,7 +13,7 @@ import static io.aoc._2022.day04.Interval.checkIfTwoIntervalsFullyOverlaps;
 import static io.aoc._2022.day04.Interval.checkIfTwoIntervalsOverlaps;
 
 public class Problem {
-    private final static Logger logger = LoggerFactory.getLogger(Problem.class);
+    private static final Logger logger = LoggerFactory.getLogger(Problem.class);
     public static final String COMA = ",";
     public static final String DASH = "-";
 

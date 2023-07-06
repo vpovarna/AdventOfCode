@@ -3,10 +3,13 @@ package io.aoc._2022.day05;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class MovesBuilder {
+final class MovesBuilder {
 
     public static final String SPACE = " ";
     public static final int MOVES_COLUMNS = 6;
+
+    private MovesBuilder() {
+    }
 
     public static List<Instruction> build(String input) {
         return input.lines()

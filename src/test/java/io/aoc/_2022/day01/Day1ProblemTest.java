@@ -14,13 +14,13 @@ class Day1ProblemTest {
         problem = new Problem();
     }
     @Test
-    public void part1Test() {
+    void part1Test() {
         int result = problem.part1(inputFile);
         Assertions.assertEquals(24000, result);
     }
 
     @Test
-    public void part2Test() {
+    void part2Test() {
         int result = problem.part2(inputFile);
         Assertions.assertEquals(45000, result);
     }

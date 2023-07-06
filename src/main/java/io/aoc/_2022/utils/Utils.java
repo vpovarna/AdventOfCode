@@ -1,8 +1,5 @@
 package io.aoc._2022.utils;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -13,7 +10,6 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 public final class Utils {
-    private final Logger logger = LoggerFactory.getLogger(Utils.class);
 
     public static List<String> readInputFileLineByLine(int day, String fileName) {
         final Utils utils = new Utils();
@@ -36,7 +32,7 @@ public final class Utils {
         try {
             return new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
         } catch (IOException e) {
-            throw new RuntimeException("Unable to generate the string: " + e.getMessage());
+            throw new IllegalArgumentException("Unable to generate the string: " + e.getMessage());
         }
     }
 

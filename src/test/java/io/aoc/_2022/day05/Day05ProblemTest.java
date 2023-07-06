@@ -15,13 +15,13 @@ public class Day05ProblemTest {
     }
 
     @Test
-    public void part1Test() {
+    void part1Test() {
         final String result = problem.part1(input);
         Assertions.assertEquals("CMZ", result);
     }
 
     @Test
-    public void part2Test() {
+    void part2Test() {
         final String result = problem.part2(input);
         Assertions.assertEquals("MCD", result);
     }

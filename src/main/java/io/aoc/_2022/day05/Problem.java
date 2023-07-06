@@ -69,8 +69,8 @@ public class Problem {
     public static void main(String[] args) {
         final String input = Utils.readInputFileAsString(5, "input.txt");
         final Problem problem = new Problem();
-        logger.info("Aoc2022, Day5 Problem, Part1: " + problem.part1(input));
-        logger.info("Aoc2022, Day5 Problem, Part2: " + problem.part2(input));
+        logger.info("Aoc2022, Day5 Problem, Part1: {}", problem.part1(input));
+        logger.info("Aoc2022, Day5 Problem, Part2: {}", problem.part2(input));
     }
 
 }
