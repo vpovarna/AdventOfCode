@@ -11,10 +11,14 @@ public class Problem {
     private static final Logger logger = LoggerFactory.getLogger(Problem.class);
 
     public int part1(String input) {
-        return findStartOfPackerMarker(input, 4);
+        return findMarkerStartIndex(input, 4);
     }
 
-    protected int findStartOfPackerMarker(String input, int chunk) {
+    public int part2(String input) {
+        return findMarkerStartIndex(input, 14);
+    }
+
+    protected int findMarkerStartIndex(String input, int chunk) {
         final char[] charArray = input.toCharArray();
         if (charArray.length < chunk) {
             throw new IllegalArgumentException("Input string has less then four chars");
@@ -37,6 +41,6 @@ public class Problem {
         final Problem problem = new Problem();
         final String input = Utils.readInputFileAsString(6, "input.txt");
         logger.info("Aoc2022, Day6 Problem, Part1: {}", problem.part1(input));
-//        logger.info("Aoc2022, Day6 Problem, Part2: " + problem.part2(input));
+        logger.info("Aoc2022, Day6 Problem, Part2: {}",  problem.part2(input));
     }
 }
