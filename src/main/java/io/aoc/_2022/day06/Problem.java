@@ -41,6 +41,6 @@ public class Problem {
         final Problem problem = new Problem();
         final String input = Utils.readInputFileAsString(6, "input.txt");
         logger.info("Aoc2022, Day6 Problem, Part1: {}", problem.part1(input));
-        logger.info("Aoc2022, Day6 Problem, Part2: {}",  problem.part2(input));
+        logger.info("Aoc2022, Day6 Problem, Part2: {}", problem.part2(input));
     }
 }

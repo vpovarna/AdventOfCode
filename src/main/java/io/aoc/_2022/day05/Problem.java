@@ -9,17 +9,17 @@ import java.util.*;
 public class Problem {
     private static final Logger logger = LoggerFactory.getLogger(Problem.class);
 
-    public String part1(String input) {
+    public StringBuilder part1(String input) {
         final InputData inputData = InputData.parse(input);
         return moveCratesOneByOne(inputData.getStacks(), inputData.getInstructions());
     }
 
-    public String part2(String input) {
+    public StringBuilder part2(String input) {
         final InputData inputData = InputData.parse(input);
         return moveCratesInChunk(inputData.getStacks(), inputData.getInstructions());
     }
 
-    private String moveCratesOneByOne(List<Stack<String>> stacks, List<Instruction> instructions) {
+    private StringBuilder moveCratesOneByOne(List<Stack<String>> stacks, List<Instruction> instructions) {
         for (Instruction instruction : instructions) {
             final Stack<String> sourceStack = stacks.get(instruction.getSourceStack() - 1);
             final Stack<String> destinationStack = stacks.get(instruction.getDestinationStack() - 1);
@@ -34,10 +34,10 @@ public class Problem {
             }
         }
 
-        return readTopStackCreate(stacks).toString();
+        return readTopStackCreate(stacks);
     }
 
-    private String moveCratesInChunk(List<Stack<String>> stacks, List<Instruction> instructions) {
+    private StringBuilder moveCratesInChunk(List<Stack<String>> stacks, List<Instruction> instructions) {
         for (Instruction instruction : instructions) {
             final Stack<String> sourceStack = stacks.get(instruction.getSourceStack() - 1);
             final Stack<String> destinationStack = stacks.get(instruction.getDestinationStack() - 1);
@@ -57,7 +57,7 @@ public class Problem {
             }
         }
 
-        return readTopStackCreate(stacks).toString();
+        return readTopStackCreate(stacks);
     }
 
     private StringBuilder readTopStackCreate(List<Stack<String>> stacks) {
@@ -67,10 +67,10 @@ public class Problem {
     }
 
     public static void main(String[] args) {
-        final String input = Utils.readInputFileAsString(5, "input.txt");
         final Problem problem = new Problem();
-        logger.info("Aoc2022, Day5 Problem, Part1: {}", problem.part1(input));
-        logger.info("Aoc2022, Day5 Problem, Part2: {}", problem.part2(input));
+        final String input = Utils.readInputFileAsString(5, "input.txt");
+        logger.info("Aoc2022, Day6 Problem, Part1: {}", problem.part1(input));
+        logger.info("Aoc2022, Day6 Problem, Part2: {}", problem.part2(input));
     }
 
 }
