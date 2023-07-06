@@ -48,7 +48,7 @@ public class Problem {
     public static void main(String[] args) {
         final Problem problem = new Problem();
         final String inputFile = Utils.readInputFileAsString(2, "input.txt");
-        logger.info("Aoc2022, Day2 Problem, Part1: " + problem.part1(inputFile));
-        logger.info("Aoc2022, Day2 Problem, Part1: " + problem.part2(inputFile));
+        logger.info("Aoc2022, Day2 Problem, Part1: {}", problem.part1(inputFile));
+        logger.info("Aoc2022, Day2 Problem, Part1: {}", problem.part2(inputFile));
     }
 }

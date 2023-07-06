@@ -7,7 +7,7 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 
 public class Problem {
-    private final static Logger logger = LoggerFactory.getLogger(io.aoc._2015.day04.Problem.class);
+    private static final Logger logger = LoggerFactory.getLogger(Problem.class);
 
     public String part1(String input) {
         final InputData inputData = InputData.parse(input);
