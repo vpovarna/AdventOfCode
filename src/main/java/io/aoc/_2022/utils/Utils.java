@@ -1,26 +1,11 @@
 package io.aoc._2022.utils;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 public final class Utils {
-
-    public static List<String> readInputFileLineByLine(int day, String fileName) {
-        final Utils utils = new Utils();
-
-        final String dayNumber = getDayNumberAsString(day);
-        final String resourceFile = String.format("%s/%s", dayNumber, fileName);
-        final InputStream inputStream = utils.getFileFromResourceAsStream(resourceFile);
-        return new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))
-                .lines()
-                .collect(Collectors.toList());
-    }
 
     public static String readInputFileAsString(int day, String fileName) {
         final Utils utils = new Utils();
@@ -37,7 +22,7 @@ public final class Utils {
     }
 
     private static String getDayNumberAsString(int day) {
-        return (day > 0 && day <= 9) ? String.format("day0%s", day) : String.valueOf(day);
+        return (day > 0 && day <= 9) ? String.format("day0%s", day) : String.format("day%s", day);
     }
 
     private InputStream getFileFromResourceAsStream(String fileName) {
