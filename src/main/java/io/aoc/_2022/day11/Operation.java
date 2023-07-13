@@ -8,8 +8,8 @@ public class Operation {
         this.worryLevelCoefficient = worryLevelCoefficient.trim();
     }
 
-    public int getNewWorryLevel(int oldWorryLevel) {
-        int oldWorryLevelValue = ("old".equals(worryLevelCoefficient)) ? oldWorryLevel : Integer.parseInt(worryLevelCoefficient);
+    public long getNewWorryLevel(long oldWorryLevel) {
+        long oldWorryLevelValue = ("old".equals(worryLevelCoefficient)) ? oldWorryLevel : Integer.parseInt(worryLevelCoefficient);
 
         return switch (operator) {
             case '+' -> oldWorryLevel + oldWorryLevelValue;

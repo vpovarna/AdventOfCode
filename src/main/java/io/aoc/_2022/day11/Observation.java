@@ -1,20 +1,18 @@
 package io.aoc._2022.day11;
 
-import java.util.ArrayDeque;
 import java.util.Deque;
-import java.util.List;
 import java.util.Queue;
 
 public class Observation {
     private final int currentMonkeyNumber;
-    private Deque<Integer> items;
+    private final Deque<Long> items;
     private final Operation operation;
-    private final int divisionNumber;
+    private final long divisionNumber;
     private final int trueMonkeyNumber;
     private final int falseMonkeyNumber;
-    private int numberOfInspectedItems = 0;
+    private long numberOfInspectedItems = 0;
 
-    public Observation(int currentMonkeyNumber, Deque<Integer> items, Operation operation, int divisionNumber, int trueMonkeyNumber, int falseMonkeyNumber) {
+    public Observation(int currentMonkeyNumber, Deque<Long> items, Operation operation, int divisionNumber, int trueMonkeyNumber, int falseMonkeyNumber) {
         this.currentMonkeyNumber = currentMonkeyNumber;
         this.items = items;
         this.operation = operation;
@@ -27,7 +25,7 @@ public class Observation {
         return currentMonkeyNumber;
     }
 
-    public Queue<Integer> getItems() {
+    public Queue<Long> getItems() {
         return items;
     }
 
@@ -35,7 +33,7 @@ public class Observation {
         return operation;
     }
 
-    public int getDivisionNumber() {
+    public long getDivisionNumber() {
         return divisionNumber;
     }
 
@@ -47,14 +45,15 @@ public class Observation {
         return falseMonkeyNumber;
     }
 
-    public int getNumberOfInspectedItems() {
+    public long getNumberOfInspectedItems() {
         return numberOfInspectedItems;
     }
 
     public void increaseNumberOfInspectedItem() {
-        numberOfInspectedItems +=1;
+        numberOfInspectedItems += 1;
     }
-    public void updateItems(int itemNumber) {
+
+    public void updateItems(long itemNumber) {
         items.add(itemNumber);
     }
 
