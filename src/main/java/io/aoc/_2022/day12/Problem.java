@@ -1,17 +1,26 @@
 package io.aoc._2022.day12;
 
 import io.aoc._2022.utils.Utils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.util.ArrayDeque;
-import java.util.HashSet;
-import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.*;
 
 public class Problem {
+    private static final Logger logger = LoggerFactory.getLogger(Problem.class);
 
     public int part1(String input) {
         var lines = input.lines().toList();
         return lengthFrom(locate(lines, "S"), lines);
+    }
+
+    public int part2(String input) {
+        var lines = input.lines().toList();
+        return collectAs(lines)
+                .parallelStream()
+                .mapToInt(start -> lengthFrom(start, lines))
+                .min()
+                .orElseThrow();
     }
 
     public Coord locate(List<String> lines, String ch) {
@@ -31,10 +40,13 @@ public class Problem {
 
         while (!queue.isEmpty() && queue.peek().end().value(lines) != 'E') {
             var next = queue.poll();
-            next.end().neighbours().forEach(n -> {
-                if (n.isValid(lines) && !visited.contains(n) && n.isAvailableFrom(next.end(), lines)) {
-                    queue.add(new Path(n, next.stepCount + 1));
-                    visited.add(n);
+            if (next == null) {
+                throw new IllegalArgumentException("Null element in the list");
+            }
+            next.end().neighbours().forEach(coord -> {
+                if (coord.isValid(lines) && !visited.contains(coord) && coord.isAvailableFrom(next.end(), lines)) {
+                    queue.add(new Path(coord, next.stepCount + 1));
+                    visited.add(coord);
                 }
             });
         }
@@ -45,10 +57,24 @@ public class Problem {
         return queue.poll().stepCount();
     }
 
+    private List<Coord> collectAs(List<String> lines) {
+        final List<Coord> result= new ArrayList<>();
+        for (int y = 0; y < lines.size(); y++) {
+            String line = lines.get(y);
+            for (int x = 0; x< line.length(); x++) {
+                if (line.charAt(x) == 'a') {
+                    result.add(new Coord(x, y));
+                }
+            }
+        }
+        return result;
+    }
+
     public static void main(String[] args) {
         var problem = new Problem();
         var input = Utils.readInputFileAsString(12, "input.txt");
-        System.out.println(problem.part1(input));
+        logger.info("Aoc2022, Day12 Problem, Part1: {}", problem.part1(input));
+        logger.info("Aoc2022, Day12 Problem, Part2: {}", problem.part2(input));
     }
 
     private record Coord(int x, int y) {
@@ -73,7 +99,7 @@ public class Problem {
             if (to == 'E') {
                 to = 'z';
             }
-            return (int) to <= (int) start + 1;
+            return to <= start + 1;
         }
     }
 
