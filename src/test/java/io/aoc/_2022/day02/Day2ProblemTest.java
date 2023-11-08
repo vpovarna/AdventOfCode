@@ -15,14 +15,14 @@ class Day2ProblemTest {
     }
     @Test
     void part1Test() {
-        final String inputFile = Utils.readInputFileAsString(2, "input.txt");
+        final String inputFile = Utils.readInputFileAsString(2022, 2, "input.txt");
         final int result = problem.part1(inputFile);
         Assertions.assertEquals(15, result);
     }
 
     @Test
     void part2Test() {
-        final String inputFile = Utils.readInputFileAsString(2, "input.txt");
+        final String inputFile = Utils.readInputFileAsString(2022, 2, "input.txt");
         final int result = problem.part2(inputFile);
         Assertions.assertEquals(12, result);
     }

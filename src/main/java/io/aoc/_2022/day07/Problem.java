@@ -37,7 +37,7 @@ public class Problem {
 
     public static void main(String[] args) {
         final Problem problem = new Problem();
-        final String input = Utils.readInputFileAsString(7, "input.txt");
+        final String input = Utils.readInputFileAsString(2022, 7, "input.txt");
         logger.info("Aoc2022, Day7 Problem, Part1: {}", problem.part1(input, 100_000));
         logger.info("Aoc2022, Day7 Problem, Part2: {}", problem.part2(input, 70_000_000, 30_000_000));
     }

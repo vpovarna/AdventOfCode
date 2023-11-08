@@ -105,7 +105,7 @@ public class Problem {
     }
 
     public static void main(String[] args) {
-        var input = Utils.readInputFileAsString(11, "input.txt");
+        var input = Utils.readInputFileAsString(2022, 11, "input.txt");
         var problem = new Problem();
         logger.info("Aoc2022, Day11 Problem, Part1: {}", problem.part1(input));
         logger.info("Aoc2022, Day11 Problem, Part2: {}", problem.part2(input));

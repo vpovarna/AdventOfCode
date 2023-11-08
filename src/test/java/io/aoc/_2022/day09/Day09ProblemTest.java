@@ -6,7 +6,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 class Day09ProblemTest {
-    private final String input = Utils.readInputFileAsString(9, "input.txt");
+    private final String input = Utils.readInputFileAsString(2022, 9, "input.txt");
 
     private static Problem problem;
 
@@ -21,9 +21,4 @@ class Day09ProblemTest {
         Assertions.assertEquals(13, result);
     }
 
-//    @Test
-//    void part2Test() {
-//        final long result = problem.part2(input);
-//        Assertions.assertEquals(8, result);
-//    }
 }

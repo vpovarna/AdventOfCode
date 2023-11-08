@@ -59,7 +59,7 @@ public class Problem {
 
     public static void main(String[] args) {
         var problem = new Problem();
-        var input = Utils.readInputFileAsString(10, "input.txt");
+        var input = Utils.readInputFileAsString(2022, 10, "input.txt");
         logger.info("Aoc2022, Day10 Problem, Part1: {}", problem.part1(input));
         logger.info("Aoc2022, Day10 Problem, Part2:\n{}", problem.part2(input));
     }

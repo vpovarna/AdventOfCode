@@ -12,7 +12,7 @@ public class Problem {
 
     public static void main(String[] args) {
         final Problem problem = new Problem();
-        final String input = Utils.readInputFileAsString(9, "input.txt");
+        final String input = Utils.readInputFileAsString(2022, 9, "input.txt");
         logger.info("Aoc2022, Day9 Problem, Part1: {}", problem.part1(input));
         logger.info("Aoc2022, Day9 Problem, Part2: {}", problem.part2(input));
     }

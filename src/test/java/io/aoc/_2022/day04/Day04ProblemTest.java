@@ -6,7 +6,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 public class Day04ProblemTest {
-    private final String input = Utils.readInputFileAsString(4, "input.txt");
+    private final String input = Utils.readInputFileAsString(2022, 4, "input.txt");
     private static Problem problem;
 
     @BeforeAll

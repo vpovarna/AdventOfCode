@@ -37,7 +37,7 @@ public class Problem {
     }
 
     public static void main(String[] args) {
-        final String inputFile = Utils.readInputFileAsString(1, "input.txt");
+        final String inputFile = Utils.readInputFileAsString(2022, 1, "input.txt");
         final Problem problem = new Problem();
 
         logger.info("Aoc2022, Day1 Problem, Part1: {}", problem.part1(inputFile));
