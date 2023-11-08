@@ -1,5 +1,5 @@
 package io.aoc._2022.day03;
-import io.aoc._2022.utils.Utils;
+import io.aoc.utils.Utils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;

@@ -1,6 +1,6 @@
 package io.aoc._2022.day01;
 
-import io.aoc._2022.utils.Utils;
+import io.aoc.utils.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

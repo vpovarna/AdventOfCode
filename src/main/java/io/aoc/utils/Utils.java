@@ -1,4 +1,4 @@
-package io.aoc._2022.utils;
+package io.aoc.utils;
 
 import java.io.IOException;
 import java.io.InputStream;
