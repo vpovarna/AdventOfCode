@@ -14,8 +14,8 @@ public class Problem {
     public static void main(String[] args) {
         var problem = new Problem();
         var input = Utils.readInputFileAsString(2020, 2, "input.txt");
-        logger.info("Aoc2020, Day1 Problem, Part1: {}", problem.part1(input));
-        logger.info("Aoc2020, Day1 Problem, Part2: {}", problem.part2(input));
+        logger.info("Aoc2020, Day2 Problem, Part1: {}", problem.part1(input));
+        logger.info("Aoc2020, Day2 Problem, Part2: {}", problem.part2(input));
     }
     public long part1(String input) {
         return getCount(input, PasswordPolicy::isPasswordValidPart1);
