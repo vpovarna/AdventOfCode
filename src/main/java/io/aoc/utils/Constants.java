@@ -2,7 +2,7 @@ package io.aoc.utils;
 
 public final class Constants {
     public static final String EOL = "\n";
-    public static final String EMPTY_LINE = "\n\n";
+    public static final String EMPTY_LINE = "\r\n\r\n";
     public static final String EMPTY_STRING = " ";
     public static final String DOTS = ":";
 
