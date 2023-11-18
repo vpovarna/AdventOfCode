@@ -19,13 +19,12 @@ public class Problem {
     }
 
     public int part1(String input) {
-        Map<String, HashSet<String>> bagHashSetMap = problem.buildBagsMap(input);
+        Map<String, HashSet<String>> bagHashSetMap = buildBagsMap(input);
 
         var results = new HashSet<>();
-        var stack = new Stack<String>();
 
-        stack.addAll(bagHashSetMap.get("shiny gold bag"));
-        while (!stack.empty()) {
+        var stack = new ArrayDeque<>(bagHashSetMap.get("shiny gold bag"));
+        while (!stack.isEmpty()) {
             var bag = stack.pop();
             if (bagHashSetMap.containsKey(bag)) {
                 stack.addAll(bagHashSetMap.get(bag));
@@ -36,7 +35,31 @@ public class Problem {
     }
 
     public int part2(String input) {
-        return 0;
+        var childrenOf = new HashMap<String, List<Bag>>();
+        for (var line : input.split(Constants.EOL)) {
+            var bagMapping = parseLine(line.trim());
+            childrenOf.put(bagMapping.bag(), bagMapping.children());
+        }
+
+        ArrayList<Integer> results = new ArrayList<>();
+        countWithChildrenRec(childrenOf, "shiny gold bag", results);
+        return results.stream().mapToInt(x -> x).sum();
+    }
+
+    private void countWithChildrenRec(Map<String, List<Bag>> childrenOf, String bagName, List<Integer> results) {
+        var childrenBags = childrenOf.get(bagName);
+        for (var childrenBag : childrenBags) {
+            results.add(childrenBag.count() * countWithChildren(childrenOf, childrenBag.bagName()));
+        }
+    }
+
+    private int countWithChildren(Map<String, List<Bag>> childrenOf, String bagName) {
+        // This can be called: countWithChildren(childrenOf, "shiny gold bag") - 1;
+
+        return 1 + childrenOf.get(bagName).stream()
+                .map(bag -> bag.count() * countWithChildren(childrenOf, bag.bagName()))
+                .mapToInt(x -> x)
+                .sum();
     }
 
     protected Map<String, HashSet<String>> buildBagsMap(String input) {
@@ -55,7 +78,7 @@ public class Problem {
         return parentsOf;
     }
 
-    protected BagsMapping parseLine(String line) {
+    private BagsMapping parseLine(String line) {
         var bag = getBag(line);
         if (bag == null) {
             throw new IllegalArgumentException("Unable to extract the bad name: " + line);
@@ -65,17 +88,17 @@ public class Problem {
         return new BagsMapping(bag, childrenBags);
     }
 
-    private static List<Bags> extractChildren(String line) {
+    private static List<Bag> extractChildren(String line) {
         var pattern = Pattern.compile("(\\d+) ([a-z]+ [a-z]+ bag)");
         var matcher = pattern.matcher(line);
 
-        var childrenBags = new ArrayList<Bags>();
+        var childrenBags = new ArrayList<Bag>();
         while (matcher.find()) {
             var substring = matcher.group();
 
             try {
                 var tokens = substring.split(" ", 2);
-                var bags = new Bags(Integer.parseInt(tokens[0]), tokens[1]);
+                var bags = new Bag(Integer.parseInt(tokens[0]), tokens[1]);
                 childrenBags.add(bags);
             } catch (Exception e) {
                 throw new IllegalArgumentException("Unable to parse: " + substring);
@@ -96,8 +119,8 @@ public class Problem {
 
 }
 
-record Bags(int count, String bagName) {
+record Bag(int count, String bagName) {
 }
 
-record BagsMapping(String bag, List<Bags> children) {
+record BagsMapping(String bag, List<Bag> children) {
 }
