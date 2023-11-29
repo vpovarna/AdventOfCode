@@ -11,6 +11,12 @@ import java.util.List;
 public class Problem {
     public static final Logger logger = LoggerFactory.getLogger(Problem.class);
 
+    private static final int NORTH = 0;
+    private static final int EAST = 90;
+    private static final int SOUTH = 180;
+    private static final int WEST = 270;
+
+
     public static void main(String[] args) {
         var problem = new Problem();
         var input = Utils.readInputFileAsString(2020, 12, "input.txt");
@@ -19,14 +25,81 @@ public class Problem {
     }
 
     private int part1(String input) {
-        List<Instruction> instructions = parseInput(input);
-        var position = new Position(0, 0, 'E');
-        instructions.forEach(position::move);
-        return position.manhattanDistance();
+        var instructions = parseInput(input);
+        var shipPosition = new Position(new Coordinate(0, 0), 90);
+
+        for (var instruction : instructions) {
+            var value = instruction.steps();
+            var currentCoordinate = shipPosition.coordinate;
+            switch (instruction.orientation()) {
+                case 'N' -> currentCoordinate.y -= value;
+                case 'S' -> currentCoordinate.y += value;
+                case 'E' -> currentCoordinate.x += value;
+                case 'W' -> currentCoordinate.x -= value;
+                case 'F' -> {
+                    switch (shipPosition.direction) {
+                        case NORTH -> currentCoordinate.y -= value;
+                        case SOUTH -> currentCoordinate.y += value;
+                        case EAST -> currentCoordinate.x += value;
+                        case WEST -> currentCoordinate.x -= value;
+                    }
+                }
+                case 'R' -> shipPosition.direction = changeDirectionPart1(value, shipPosition.direction);
+                case 'L' -> shipPosition.direction = changeDirectionPart1(-value, shipPosition.direction);
+            }
+        }
+
+        return Math.abs(shipPosition.coordinate.x) + Math.abs(shipPosition.coordinate.y);
+
+    }
+
+    private int changeDirectionPart1(int value, int direction) {
+        direction += value;
+        if (direction < 0) {
+            direction += 360;
+        }
+        if (direction >= 360) {
+            direction -= 360;
+        }
+        return direction;
     }
 
     private int part2(String input) {
-        return -1;
+        var instructions = parseInput(input);
+
+        var shipCoordinate = new Coordinate(0, 0);
+        var viewPointCoordinate = new Coordinate(10, -1);
+
+        for (var instruction : instructions) {
+            var value = instruction.steps();
+            switch (instruction.orientation()) {
+                case 'N' -> viewPointCoordinate.y -= value;
+                case 'S' -> viewPointCoordinate.y += value;
+                case 'E' -> viewPointCoordinate.x += value;
+                case 'W' -> viewPointCoordinate.x -= value;
+                case 'F' -> {
+                    shipCoordinate.x += viewPointCoordinate.x * value;
+                    shipCoordinate.y += viewPointCoordinate.y * value;
+                }
+                case 'L' -> viewPointCoordinate = changeDirectionPart2(-value, viewPointCoordinate);
+                case 'R' -> viewPointCoordinate = changeDirectionPart2(value, viewPointCoordinate);
+            }
+        }
+
+        return Math.abs(shipCoordinate.x) + Math.abs(shipCoordinate.y);
+    }
+
+    private static Coordinate changeDirectionPart2(int value, Coordinate viewPointCoordinate) {
+        if (value < 0) {
+            value += 360;
+        }
+
+        double radians = Math.toRadians(value);
+
+        float newx = (float) (viewPointCoordinate.x * Math.cos(radians) - viewPointCoordinate.y * Math.sin(radians));
+        float newy = (float) (viewPointCoordinate.x * Math.sin(radians) + viewPointCoordinate.y * Math.cos(radians));
+
+        return new Coordinate((int) newx, (int) newy);
     }
 
     private List<Instruction> parseInput(String input) {
@@ -39,59 +112,25 @@ public class Problem {
 
 }
 
+class Coordinate {
+    int x;
+    int y;
+
+    public Coordinate(int x, int y) {
+        this.x = x;
+        this.y = y;
+    }
+}
+
 record Instruction(char orientation, int steps) {
 }
 
 class Position {
-    private final List<Character> cardinalDirections = List.of('E', 'S', 'W', 'N');
-    private int x;
-    private int y;
-    private char currentOrientation;
+    Coordinate coordinate;
+    int direction;
 
-    public Position(int x, int y, char currentOrientation) {
-        this.x = x;
-        this.y = y;
-        this.currentOrientation = currentOrientation;
-    }
-
-    public void move(Instruction instruction) {
-        switch (instruction.orientation()) {
-            case 'F' -> {
-                switch (currentOrientation) {
-                    case 'N' -> y += instruction.steps();
-                    case 'S' -> y -= instruction.steps();
-                    case 'E' -> x += instruction.steps();
-                    case 'W' -> x -= instruction.steps();
-                }
-            }
-            case 'N' -> y += instruction.steps();
-            case 'S' -> y -= instruction.steps();
-            case 'E' -> x += instruction.steps();
-            case 'W' -> x -= instruction.steps();
-            case 'R' -> {
-                var index = (cardinalDirections.indexOf(currentOrientation) + (instruction.steps() / 90)) % cardinalDirections.size();
-                currentOrientation = cardinalDirections.get(index);
-            }
-            case 'L' -> {
-                var tmpIndex = cardinalDirections.indexOf(currentOrientation) - (instruction.steps() / 90);
-                var index = (tmpIndex < 0) ? cardinalDirections.size() + tmpIndex : tmpIndex;
-                currentOrientation = cardinalDirections.get(index);
-            }
-            default -> throw new IllegalArgumentException("Invalid instruction");
-        }
-
-    }
-
-    public int manhattanDistance() {
-        return Math.abs(x) + Math.abs(y);
-    }
-
-    @Override
-    public String toString() {
-        return "Position[" +
-                "x=" + x +
-                ", y=" + y +
-                ", currentOrientation=" + currentOrientation +
-                ']';
+    public Position(Coordinate coordinate, int direction) {
+        this.coordinate = coordinate;
+        this.direction = direction;
     }
 }
