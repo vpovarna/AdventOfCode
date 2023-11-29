@@ -21,16 +21,7 @@ public class Problem {
     private int part1(String input) {
         List<Instruction> instructions = parseInput(input);
         var position = new Position(0, 0, 'E');
-        System.out.println(position);
-        System.out.println("------------------------------");
-
-        for (var instruction : instructions) {
-            System.out.println("Current instruction: " + instruction);
-            position.move(instruction);
-            System.out.println("Current position: " + position);
-            System.out.println("------------------------------");
-        }
-
+        instructions.forEach(position::move);
         return position.manhattanDistance();
     }
 
