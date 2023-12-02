@@ -7,13 +7,19 @@ import java.util.Objects;
 
 public final class Utils {
 
+    public static final String DEFAULT_FILE_NAME = "input.txt";
+
+    public static String readInputFileAsString(int year, int day) {
+        return readInputFileAsString(year, day, DEFAULT_FILE_NAME);
+    }
+
     public static String readInputFileAsString(int year, int day, String fileName) {
         final Utils utils = new Utils();
         final String defaultFileName = Objects.requireNonNullElse(fileName, "input.txt");
 
         final String dayNumber = getDayNumberAsString(day);
         final String yearNumber = getYearNumberAsString(year);
-        final String resourceFile = String.format("%s/%s/%s",yearNumber, dayNumber, defaultFileName);
+        final String resourceFile = String.format("%s/%s/%s", yearNumber, dayNumber, defaultFileName);
         final InputStream inputStream = utils.getFileFromResourceAsStream(resourceFile);
         try {
             return new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
