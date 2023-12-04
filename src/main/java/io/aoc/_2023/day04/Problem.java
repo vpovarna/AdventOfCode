@@ -8,7 +8,10 @@ import org.slf4j.LoggerFactory;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 public class Problem {
@@ -24,32 +27,52 @@ public class Problem {
     }
 
     private int part1(String input) {
-        return run(input);
-    }
+        var list = run(input);
 
-    private int part2(String input) {
-        return 0;
-    }
-
-    private int run(String input) {
-        var lines = input.split(Constants.EOL);
-        return Arrays.stream(lines)
-                .parallel()
-                .map(this::getCard)
-                .map(this::countWiningNumbers)
+        return list.stream()
                 .mapToInt(x -> (int) Math.pow(2, (x - 1)))
                 .sum();
     }
 
-    private Card getCard(String line) {
+    private int part2(String input) {
+        var cards = run(input);
+        var counts = IntStream.range(0, cards.size())
+                .map(x -> 1)
+                .toArray();
+
+        for (var i = 0; i < cards.size(); i++) {
+            var winningNumbers = cards.get(i);
+            var count = counts[i];
+
+            for (var j = 0; j < winningNumbers; j++) {
+                counts[i + j + 1] += count;
+            }
+        }
+
+        return Arrays.stream(counts).sum();
+
+    }
+
+    private List<Integer> run(String input) {
+        var lines = input.split(Constants.EOL);
+        return Arrays.stream(lines)
+                .parallel()
+                .map(this::extractCardNumbers)
+                .map(Card::cardNumbers)
+                .map(this::countWiningNumbers)
+                .toList();
+    }
+
+    private Card extractCardNumbers(String line) {
         String[] parts = line.split(" \\| ");
         var numbers = extractNumbers(parts)
                 .collect(Collectors.toSet());
         String[] splits = parts[0].split(Constants.DOTS);
         var winningNumbers = extractNumbers(splits)
                 .toList();
+        String numerAsString = extractGameNumber(splits[0]);
 
-        return new Card(winningNumbers, numbers);
+        return new Card(Integer.parseInt(numerAsString), new CardNumbers(winningNumbers, numbers));
     }
 
     private static Stream<Integer> extractNumbers(String[] parts) {
@@ -60,15 +83,27 @@ public class Problem {
                 .map(Integer::parseInt);
     }
 
-    private int countWiningNumbers(Card card) {
-        var winingNumbers = card.winningNumbers();
+    private int countWiningNumbers(CardNumbers cardNumbers) {
+        var winingNumbers = cardNumbers.winningNumbers();
 
-        return card.numbers().stream()
+        return cardNumbers.numbers().stream()
                 .filter(winingNumbers::contains)
                 .mapToInt(x -> 1)
                 .sum();
     }
+
+    private String extractGameNumber(String part) {
+        var pattern = Pattern.compile("\\d+");
+        Matcher matcher = pattern.matcher(part);
+        if (matcher.find()) {
+            return matcher.group();
+        }
+        return "";
+    }
 }
 
-record Card(List<Integer> winningNumbers, Set<Integer> numbers) {
+record Card(int cardNumber, CardNumbers cardNumbers) {
+}
+
+record CardNumbers(List<Integer> winningNumbers, Set<Integer> numbers) {
 }
