@@ -8,8 +8,6 @@ import org.slf4j.LoggerFactory;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -58,8 +56,7 @@ public class Problem {
         return Arrays.stream(lines)
                 .parallel()
                 .map(this::extractCardNumbers)
-                .map(Card::cardNumbers)
-                .map(this::countWiningNumbers)
+                .map(Card::countWiningNumbers)
                 .toList();
     }
 
@@ -70,9 +67,8 @@ public class Problem {
         String[] splits = parts[0].split(Constants.DOTS);
         var winningNumbers = extractNumbers(splits)
                 .toList();
-        String numerAsString = extractGameNumber(splits[0]);
 
-        return new Card(Integer.parseInt(numerAsString), new CardNumbers(winningNumbers, numbers));
+        return new Card(winningNumbers, numbers);
     }
 
     private static Stream<Integer> extractNumbers(String[] parts) {
@@ -83,27 +79,13 @@ public class Problem {
                 .map(Integer::parseInt);
     }
 
-    private int countWiningNumbers(CardNumbers cardNumbers) {
-        var winingNumbers = cardNumbers.winningNumbers();
+}
 
-        return cardNumbers.numbers().stream()
-                .filter(winingNumbers::contains)
+record Card(List<Integer> winningNumbers, Set<Integer> numbers) {
+    public int countWiningNumbers() {
+        return numbers.stream()
+                .filter(winningNumbers::contains)
                 .mapToInt(x -> 1)
                 .sum();
     }
-
-    private String extractGameNumber(String part) {
-        var pattern = Pattern.compile("\\d+");
-        Matcher matcher = pattern.matcher(part);
-        if (matcher.find()) {
-            return matcher.group();
-        }
-        return "";
-    }
-}
-
-record Card(int cardNumber, CardNumbers cardNumbers) {
-}
-
-record CardNumbers(List<Integer> winningNumbers, Set<Integer> numbers) {
 }
