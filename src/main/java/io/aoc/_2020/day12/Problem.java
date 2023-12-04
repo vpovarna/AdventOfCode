@@ -20,8 +20,8 @@ public class Problem {
     public static void main(String[] args) {
         var problem = new Problem();
         var input = Utils.readInputFileAsString(2020, 12, "input.txt");
-        logger.info("Aoc2020, Day10 Problem, Part1: {}", problem.part1(input));
-        logger.info("Aoc2020, Day10 Problem, Part2: {}", problem.part2(input));
+        logger.info("Aoc2020, Day12 Problem, Part1: {}", problem.part1(input));
+        logger.info("Aoc2020, Day12 Problem, Part2: {}", problem.part2(input));
     }
 
     private int part1(String input) {
