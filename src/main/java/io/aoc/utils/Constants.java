@@ -5,6 +5,7 @@ public final class Constants {
     public static final String EMPTY_LINE = "\r\n\r\n";
     public static final String EMPTY_STRING = " ";
     public static final String DOTS = ":";
+    public static final String DASH = "|";
 
 
     private Constants() {
