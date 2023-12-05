@@ -83,8 +83,8 @@ public class Problem {
 
 record Card(List<Integer> winningNumbers, Set<Integer> numbers) {
     public int countWiningNumbers() {
-        return numbers.stream()
-                .filter(winningNumbers::contains)
+        return winningNumbers.stream()
+                .filter(numbers::contains)
                 .mapToInt(x -> 1)
                 .sum();
     }
