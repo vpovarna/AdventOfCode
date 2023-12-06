@@ -5,7 +5,6 @@ import io.aoc.utils.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -19,9 +18,7 @@ import java.util.stream.IntStream;
 public class Problem {
     private static final Logger logger = LoggerFactory.getLogger(Problem.class);
     private static final int NUMBER_OF_MAPS = 7;
-
-    private static final ExecutorService EXECUTOR_SERVICE = Executors.newCachedThreadPool();
-
+    private static final ExecutorService EXECUTOR_SERVICE = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
     public static void main(String[] args) {
         var inputFile = Utils.readInputFileAsString(2023, 5);
@@ -44,7 +41,7 @@ public class Problem {
         return location;
     }
 
-    private long part2(String input)  {
+    private long part2(String input) {
         final long now = System.currentTimeMillis();
 
         var almanac = parseInput(input);
@@ -59,10 +56,9 @@ public class Problem {
         for (int i = 0; i < seeds.size(); i += 2) {
             long start = seeds.get(i);
             long len = seeds.get(i + 1);
-            taskThreads.add(new TaskThread(start, len, maps, latch,globalMin));
+            taskThreads.add(new TaskThread(start, len, maps, latch, globalMin));
         }
 
-        var start = Instant.now().getNano();
         try {
             taskThreads.forEach(EXECUTOR_SERVICE::submit);
             latch.await();
@@ -168,7 +164,7 @@ class TaskThread implements Runnable {
             smallestValue = Math.min(smallestValue, currentSeed);
         }
 
-        System.out.println(smallestValue);
+//        System.out.println(smallestValue);
         globalMin.set(Math.min(globalMin.get(), smallestValue));
         latch.countDown();
     }
