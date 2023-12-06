@@ -6,6 +6,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
@@ -50,16 +52,20 @@ public class Problem {
         var seeds = almanac.seeds();
         var maps = almanac.mapCoordinates();
 
-        final AtomicLong result = new AtomicLong();
-        result.set(Long.MAX_VALUE);
+        final AtomicLong result = new AtomicLong(Long.MAX_VALUE);
 
-        var taskThreads = new ArrayList<Runnable>();
-
+        var seedRanges = new ArrayList<SeedRange>();
         for (int i = 0; i < seeds.size(); i += 2) {
             long start = seeds.get(i);
             long len = seeds.get(i + 1);
-            taskThreads.add(new TaskThread(start, len, maps, result));
+            seedRanges.add(new SeedRange(start, len));
         }
+
+        seedRanges.sort(Comparator.comparingLong(SeedRange::start));
+
+        var taskThreads = seedRanges.stream()
+                .map(seedRange -> new TaskThread(seedRange.start(), seedRange.len(), maps, result))
+                .toList();
 
         var completableFutures = taskThreads.stream()
                 .map(runnable -> CompletableFuture.runAsync(runnable, FIXED_THREAD_POOL))
@@ -77,7 +83,7 @@ public class Problem {
         while (!status) {
             try {
                 System.out.print("..");
-                Thread.sleep(2000);
+                Thread.sleep(5000);
             } catch (InterruptedException e) {
                 logger.error(e.getMessage());
             }
@@ -145,6 +151,8 @@ record MapCoordinates(List<Coordinates> coordinates) {
 record Almanac(List<Long> seeds, List<MapCoordinates> mapCoordinates) {
 }
 
+record SeedRange(long start, long len) {}
+
 
 class TaskThread implements Runnable {
     private final long startSeedNr;
@@ -163,20 +171,20 @@ class TaskThread implements Runnable {
     public void run() {
         long smallestValue = Long.MAX_VALUE;
         for (var seed = startSeedNr; seed < startSeedNr + count; seed++) {
-            long currentSeed = seed;
+            if (globalMin.get() > seed) {
+                long currentSeed = seed;
 
-            for (var map : maps) {
-                for (var coordinates : map.coordinates()) {
-                    if (coordinates.sourceRangeStart() <= currentSeed && currentSeed < coordinates.sourceRangeStart() + coordinates.count()) {
-                        currentSeed = coordinates.destRangeStart() + (currentSeed - coordinates.sourceRangeStart());
-                        break;
+                for (var map : maps) {
+                    for (var coordinates : map.coordinates()) {
+                        if (coordinates.sourceRangeStart() <= currentSeed && currentSeed < coordinates.sourceRangeStart() + coordinates.count()) {
+                            currentSeed = coordinates.destRangeStart() + (currentSeed - coordinates.sourceRangeStart());
+                            break;
+                        }
                     }
                 }
+                smallestValue = Math.min(smallestValue, currentSeed);
             }
-            smallestValue = Math.min(smallestValue, currentSeed);
         }
-
-//        System.out.println(smallestValue);
         globalMin.set(Math.min(globalMin.get(), smallestValue));
     }
 }
