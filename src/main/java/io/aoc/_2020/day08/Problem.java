@@ -86,7 +86,7 @@ public class Problem {
 
     }
     private List<Instruction> parseInput(String input) {
-        var lines = input.split(Constants.EOL);
+        var lines = input.split("\r\n");
         return Arrays.stream(lines)
                 .map(this::createInstruction)
                 .toList();
@@ -94,10 +94,7 @@ public class Problem {
 
     private Instruction createInstruction(String line) {
         var tokens = line.split(Constants.EMPTY_STRING);
-        if (tokens.length != 2) {
-            throw new IllegalArgumentException("Unable to extract two tokens from the input line: " + line);
-        }
-
+        System.out.println(Arrays.toString(tokens));
         int steps;
         try {
             steps = Integer.parseInt(tokens[1]);
