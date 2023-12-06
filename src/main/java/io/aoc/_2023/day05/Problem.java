@@ -6,7 +6,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -81,15 +80,8 @@ public class Problem {
     public static void isDone(CompletableFuture<?>[] completableFutures) {
         var status = false;
         while (!status) {
-            try {
-                System.out.print("..");
-                Thread.sleep(5000);
-            } catch (InterruptedException e) {
-                logger.error(e.getMessage());
-            }
             status = CompletableFuture.allOf(completableFutures).isDone();
         }
-        System.out.println("\n");
     }
 
     private Long findCoordinate(Long target, List<MapCoordinates> maps) {
