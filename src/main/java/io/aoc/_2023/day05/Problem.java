@@ -7,6 +7,9 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
@@ -14,6 +17,9 @@ import java.util.stream.IntStream;
 public class Problem {
     private static final Logger logger = LoggerFactory.getLogger(Problem.class);
     private static final int NUMBER_OF_MAPS = 7;
+
+    private static final ExecutorService EXECUTOR_SERVICE = Executors.newCachedThreadPool();
+
 
     public static void main(String[] args) {
         var inputFile = Utils.readInputFileAsString(2023, 5);
@@ -36,9 +42,30 @@ public class Problem {
         return location;
     }
 
-    private int part2(String input) {
-        return 0;
+    private long part2(String input)  {
+        var almanac = parseInput(input);
+        var seeds = almanac.seeds();
+        var maps = almanac.mapCoordinates();
+
+        var taskThreads = new ArrayList<TaskThread>();
+        final CountDownLatch latch = new CountDownLatch(seeds.size() / 2);
+
+        for (int i = 0; i < seeds.size(); i += 2) {
+            long start = seeds.get(i);
+            long len = seeds.get(i + 1);
+            taskThreads.add(new TaskThread(start, len, maps, latch));
+        }
+
+        try {
+            taskThreads.forEach(EXECUTOR_SERVICE::submit);
+            latch.await();
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+        }
+
+        return 0L;
     }
+
 
     private Long findCoordinate(Long target, List<MapCoordinates> maps) {
         var currentNum = target;
@@ -99,3 +126,38 @@ record MapCoordinates(List<Coordinates> coordinates) {
 record Almanac(List<Long> seeds, List<MapCoordinates> mapCoordinates) {
 }
 
+
+class TaskThread implements Runnable {
+    private final long startSeedNr;
+    private final long count;
+    private final List<MapCoordinates> maps;
+    private final CountDownLatch latch;
+
+    public TaskThread(long startSeedNr, long count, List<MapCoordinates> maps, CountDownLatch latch) {
+        this.startSeedNr = startSeedNr;
+        this.count = count;
+        this.maps = maps;
+        this.latch = latch;
+    }
+
+    @Override
+    public void run() {
+        long smallestValue = Long.MAX_VALUE;
+        for (var seed = startSeedNr; seed < startSeedNr + count; seed++) {
+            long currentSeed = seed;
+
+            for (var map : maps) {
+                for (var coordinates : map.coordinates()) {
+                    if (coordinates.sourceRangeStart() <= currentSeed && currentSeed < coordinates.sourceRangeStart() + coordinates.count()) {
+                        currentSeed = coordinates.destRangeStart() + (currentSeed - coordinates.sourceRangeStart());
+                        break;
+                    }
+                }
+
+                smallestValue = Math.min(smallestValue, currentSeed);
+            }
+        }
+        System.out.println(smallestValue);
+        latch.countDown();
+    }
+}
