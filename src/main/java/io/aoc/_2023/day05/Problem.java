@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
@@ -18,7 +19,6 @@ import java.util.stream.IntStream;
 public class Problem {
     private static final Logger logger = LoggerFactory.getLogger(Problem.class);
     private static final int NUMBER_OF_MAPS = 7;
-    private static final int CHUNK_SIZE = 100_000;
     private static final ExecutorService FIXED_THREAD_POOL = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
     public static void main(String[] args) {
@@ -56,9 +56,10 @@ public class Problem {
         for (int i = 0; i < seeds.size(); i += 2) {
             long start = seeds.get(i);
             long len = seeds.get(i + 1);
-            // Split seed ranges in chunks of max: 100K elements
-            seedRanges.addAll(createChunks(start, len));
+            seedRanges.add(new SeedRange(start, len));
         }
+
+        seedRanges.sort(Comparator.comparingLong(SeedRange::start));
 
         var taskThreads = seedRanges.stream()
                 .map(seedRange -> new TaskThread(seedRange.start(), seedRange.len(), maps, result))
@@ -75,33 +76,16 @@ public class Problem {
         return result.get();
     }
 
-    private List<SeedRange> createChunks(long l, long v) {
-        var arr = new ArrayList<SeedRange>();
-        long parts = l / CHUNK_SIZE;
-
-        for (var i = 1; i <= parts ; i++) {
-            arr.add(new SeedRange(v, CHUNK_SIZE));
-            v = v + CHUNK_SIZE;
-        }
-        if (l % CHUNK_SIZE != 0) {
-            l = l - (parts * CHUNK_SIZE);
-            arr.add(new SeedRange(v, l));
-        }
-        return arr;
-
-    }
     public static void isDone(CompletableFuture<?>[] completableFutures) {
         var status = false;
         while (!status) {
             try {
-                System.out.print("..");
                 Thread.sleep(5000);
             } catch (InterruptedException e) {
                 logger.error(e.getMessage());
             }
             status = CompletableFuture.allOf(completableFutures).isDone();
         }
-        System.out.println("\n");
     }
 
     private Long findCoordinate(Long target, List<MapCoordinates> maps) {
