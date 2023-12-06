@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
@@ -49,11 +50,13 @@ public class Problem {
 
         var taskThreads = new ArrayList<TaskThread>();
         final CountDownLatch latch = new CountDownLatch(seeds.size() / 2);
+        final AtomicLong globalMin = new AtomicLong();
+        globalMin.set(Long.MAX_VALUE);
 
         for (int i = 0; i < seeds.size(); i += 2) {
             long start = seeds.get(i);
             long len = seeds.get(i + 1);
-            taskThreads.add(new TaskThread(start, len, maps, latch));
+            taskThreads.add(new TaskThread(start, len, maps, latch,globalMin));
         }
 
         try {
@@ -63,7 +66,7 @@ public class Problem {
             logger.error(e.getMessage());
         }
 
-        return 0L;
+        return globalMin.get();
     }
 
 
@@ -132,12 +135,14 @@ class TaskThread implements Runnable {
     private final long count;
     private final List<MapCoordinates> maps;
     private final CountDownLatch latch;
+    private final AtomicLong globalMin;
 
-    public TaskThread(long startSeedNr, long count, List<MapCoordinates> maps, CountDownLatch latch) {
+    public TaskThread(long startSeedNr, long count, List<MapCoordinates> maps, CountDownLatch latch, AtomicLong globalMin) {
         this.startSeedNr = startSeedNr;
         this.count = count;
         this.maps = maps;
         this.latch = latch;
+        this.globalMin = globalMin;
     }
 
     @Override
@@ -153,11 +158,12 @@ class TaskThread implements Runnable {
                         break;
                     }
                 }
-
-                smallestValue = Math.min(smallestValue, currentSeed);
             }
+            smallestValue = Math.min(smallestValue, currentSeed);
         }
-        System.out.println(smallestValue);
+
+        globalMin.set(Math.min(globalMin.get(), smallestValue));
+//        System.out.println(smallestValue);
         latch.countDown();
     }
 }
