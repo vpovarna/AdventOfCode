@@ -7,7 +7,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicLong;
@@ -18,7 +18,7 @@ import java.util.stream.IntStream;
 public class Problem {
     private static final Logger logger = LoggerFactory.getLogger(Problem.class);
     private static final int NUMBER_OF_MAPS = 7;
-    private static final ExecutorService EXECUTOR_SERVICE = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+    private static final ExecutorService FIXED_THREAD_POOL = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
     public static void main(String[] args) {
         var inputFile = Utils.readInputFileAsString(2023, 5);
@@ -26,6 +26,8 @@ public class Problem {
 
         logger.info("Aoc2023, Day5 Problem, Part1: {}", problem.part1(inputFile));
         logger.info("Aoc2023, Day5 Problem, Part2: {}", problem.part2(inputFile));
+
+        FIXED_THREAD_POOL.shutdown();
     }
 
     private long part1(String input) {
@@ -48,29 +50,41 @@ public class Problem {
         var seeds = almanac.seeds();
         var maps = almanac.mapCoordinates();
 
-        var taskThreads = new ArrayList<TaskThread>();
-        final CountDownLatch latch = new CountDownLatch(seeds.size() / 2);
-        final AtomicLong globalMin = new AtomicLong();
-        globalMin.set(Long.MAX_VALUE);
+        final AtomicLong result = new AtomicLong();
+        result.set(Long.MAX_VALUE);
+
+        var taskThreads = new ArrayList<Runnable>();
 
         for (int i = 0; i < seeds.size(); i += 2) {
             long start = seeds.get(i);
             long len = seeds.get(i + 1);
-            taskThreads.add(new TaskThread(start, len, maps, latch, globalMin));
+            taskThreads.add(new TaskThread(start, len, maps, result));
         }
 
-        try {
-            taskThreads.forEach(EXECUTOR_SERVICE::submit);
-            latch.await();
-        } catch (Exception e) {
-            logger.error(e.getMessage());
-        }
+        var completableFutures = taskThreads.stream()
+                .map(runnable -> CompletableFuture.runAsync(runnable, FIXED_THREAD_POOL))
+                .toArray(CompletableFuture<?>[]::new);
+
+        isDone(completableFutures);
 
         final long time = System.currentTimeMillis() - now;
         logger.info("Finished after {} ms ({} s)", time, time / 1000);
-        return globalMin.get();
+        return result.get();
     }
 
+    public static void isDone(CompletableFuture<?>[] completableFutures) {
+        var status = false;
+        while (!status) {
+            try {
+                System.out.print("..");
+                Thread.sleep(2000);
+            } catch (InterruptedException e) {
+                logger.error(e.getMessage());
+            }
+            status = CompletableFuture.allOf(completableFutures).isDone();
+        }
+        System.out.println("\n");
+    }
 
     private Long findCoordinate(Long target, List<MapCoordinates> maps) {
         var currentNum = target;
@@ -136,14 +150,12 @@ class TaskThread implements Runnable {
     private final long startSeedNr;
     private final long count;
     private final List<MapCoordinates> maps;
-    private final CountDownLatch latch;
     private final AtomicLong globalMin;
 
-    public TaskThread(long startSeedNr, long count, List<MapCoordinates> maps, CountDownLatch latch, AtomicLong globalMin) {
+    public TaskThread(long startSeedNr, long count, List<MapCoordinates> maps, AtomicLong globalMin) {
         this.startSeedNr = startSeedNr;
         this.count = count;
         this.maps = maps;
-        this.latch = latch;
         this.globalMin = globalMin;
     }
 
@@ -166,6 +178,5 @@ class TaskThread implements Runnable {
 
 //        System.out.println(smallestValue);
         globalMin.set(Math.min(globalMin.get(), smallestValue));
-        latch.countDown();
     }
 }
