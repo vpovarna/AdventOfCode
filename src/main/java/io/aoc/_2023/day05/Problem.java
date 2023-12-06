@@ -54,6 +54,7 @@ public class Problem {
         final AtomicLong result = new AtomicLong(Long.MAX_VALUE);
 
         var seedRanges = new ArrayList<SeedRange>();
+        // TODO: Split the seed ranges in lower chunks
         for (int i = 0; i < seeds.size(); i += 2) {
             long start = seeds.get(i);
             long len = seeds.get(i + 1);
@@ -61,6 +62,7 @@ public class Problem {
         }
 
         seedRanges.sort(Comparator.comparingLong(SeedRange::start));
+        System.out.println(seedRanges);
 
         var taskThreads = seedRanges.stream()
                 .map(seedRange -> new TaskThread(seedRange.start(), seedRange.len(), maps, result))
@@ -80,8 +82,15 @@ public class Problem {
     public static void isDone(CompletableFuture<?>[] completableFutures) {
         var status = false;
         while (!status) {
+            try {
+                System.out.print("..");
+                Thread.sleep(5000);
+            } catch (InterruptedException e) {
+                logger.error(e.getMessage());
+            }
             status = CompletableFuture.allOf(completableFutures).isDone();
         }
+        System.out.println("\n");
     }
 
     private Long findCoordinate(Long target, List<MapCoordinates> maps) {
