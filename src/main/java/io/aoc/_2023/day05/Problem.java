@@ -5,6 +5,7 @@ import io.aoc.utils.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -44,6 +45,8 @@ public class Problem {
     }
 
     private long part2(String input)  {
+        final long now = System.currentTimeMillis();
+
         var almanac = parseInput(input);
         var seeds = almanac.seeds();
         var maps = almanac.mapCoordinates();
@@ -59,6 +62,7 @@ public class Problem {
             taskThreads.add(new TaskThread(start, len, maps, latch,globalMin));
         }
 
+        var start = Instant.now().getNano();
         try {
             taskThreads.forEach(EXECUTOR_SERVICE::submit);
             latch.await();
@@ -66,6 +70,8 @@ public class Problem {
             logger.error(e.getMessage());
         }
 
+        final long time = System.currentTimeMillis() - now;
+        logger.info("Finished after {} ms ({} s)", time, time / 1000);
         return globalMin.get();
     }
 
@@ -162,8 +168,8 @@ class TaskThread implements Runnable {
             smallestValue = Math.min(smallestValue, currentSeed);
         }
 
+        System.out.println(smallestValue);
         globalMin.set(Math.min(globalMin.get(), smallestValue));
-//        System.out.println(smallestValue);
         latch.countDown();
     }
 }
