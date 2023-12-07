@@ -15,36 +15,30 @@ public class Problem {
         var inputFile = Utils.readInputFileAsString(2023, 7);
         var problem = new Problem();
 
-        logger.info("Aoc2023, Day7 Problem, Part1: {}", problem.part1(inputFile));
-        logger.info("Aoc2023, Day7 Problem, Part2: {}", problem.part2(inputFile));
+        logger.info("Aoc2023, Day7 Problem, Part1: {}", problem.run(inputFile, false));
+        logger.info("Aoc2023, Day7 Problem, Part2: {}", problem.run(inputFile, true));
     }
 
-    public static final String LABELS = "AKQJT98765432";
 
-    private int part1(String input) {
-        var pokerHands = parseInput(input);
+    private int run(String input, boolean withJoker) {
+        var pokerHands = Arrays.stream(input.split(Constants.EOL))
+                .map(String::trim)
+                .map(line -> line.split(Constants.EMPTY_STRING))
+                .map(arr -> new PokerHand(arr[0], Integer.parseInt(arr[1])))
+                .sorted((h1, h2) -> compare(h1, h2, withJoker))
+                .toList();
+
         return IntStream.range(0, pokerHands.size())
                 .reduce(0, (t, i) ->
                         t + ((i + 1) * pokerHands.get(i).rank())
                 );
     }
 
-    private int part2(String input) {
-        return 0;
-    }
+    private int compare(PokerHand hand1, PokerHand hand2, boolean withJoker) {
+        var labels = (withJoker) ? "AKQT98765432J" : "AKQJT98765432";
 
-    private List<PokerHand> parseInput(String input) {
-        return Arrays.stream(input.split(Constants.EOL))
-                .map(String::trim)
-                .map(line -> line.split(Constants.EMPTY_STRING))
-                .map(arr -> new PokerHand(arr[0], Integer.parseInt(arr[1])))
-                .sorted(this::compare)
-                .toList();
-    }
-
-    private int compare(PokerHand hand1, PokerHand hand2) {
-        var hand1Type = hand1.getType();
-        var hand2Type = hand2.getType();
+        var hand1Type = (withJoker) ? hand1.getTypeWithJoker() : hand1.getTypeWithoutJoker();
+        var hand2Type = (withJoker) ? hand2.getTypeWithJoker() : hand2.getTypeWithoutJoker();
 
         if (hand1Type.value == hand2Type.value) {
             if (hand1.equals(hand2)) {
@@ -53,10 +47,12 @@ public class Problem {
             var hand1Cards = hand1.card();
             var hand2Cards = hand2.card();
             for (var i = 0; i < hand1Cards.length(); i++) {
-                if (LABELS.indexOf(hand1Cards.charAt(i)) < LABELS.indexOf(hand2Cards.charAt(i))) {
+                var i1 = labels.indexOf(hand1Cards.charAt(i));
+                var i2 = labels.indexOf(hand2Cards.charAt(i));
+                if (i1 < i2) {
                     return 1;
                 }
-                if (LABELS.indexOf(hand1Cards.charAt(i)) > LABELS.indexOf(hand2Cards.charAt(i))) {
+                if (i1 > i2) {
                     return -1;
                 }
             }
@@ -69,5 +65,4 @@ public class Problem {
 
         return -1;
     }
-
 }
