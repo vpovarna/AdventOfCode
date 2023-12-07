@@ -19,8 +19,8 @@ public class Problem {
     public static void main(String[] args) {
         var problem = new Problem();
         var input = Utils.readInputFileAsString(2020, 15);
-        logger.info("Aoc2020, Day10 Problem, Part1: {}", problem.run(input, 2020));
-        logger.info("Aoc2020, Day10 Problem, Part2: {}", problem.run(input, 30000000));
+        logger.info("Aoc2020, Day15 Problem, Part1: {}", problem.run(input, 2020));
+        logger.info("Aoc2020, Day15 Problem, Part2: {}", problem.run(input, 30000000));
     }
 
     private int run(String input, int nrOfIterations) {
