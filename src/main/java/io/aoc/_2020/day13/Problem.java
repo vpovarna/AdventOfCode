@@ -10,7 +10,7 @@ import java.util.List;
 
 public class Problem {
 
-    private final static Logger logger = LoggerFactory.getLogger(Problem.class);
+    private static final Logger logger = LoggerFactory.getLogger(Problem.class);
 
     public static void main(String[] args) {
         var problem = new Problem();
@@ -42,10 +42,10 @@ public class Problem {
 
     /**
      * The common number of two prime numbers is equal to the product of them.
-     *   Ex: 3, 7 have the common number = 21
-     *
-     *  The tine will only increase with the stepSize, as long as the (time + index) % buss != 0
-     *  https://www.youtube.com/watch?v=4_5mluiXF5I&ab_channel=AlvintheProgrammer
+     * Ex: 3, 7 have the common number = 21
+     * <p>
+     * The tine will only increase with the stepSize, as long as the (time + index) % buss != 0
+     * https://www.youtube.com/watch?v=4_5mluiXF5I&ab_channel=AlvintheProgrammer
      */
     private long part2(String input) {
         var busses = parseInputPart2(input);

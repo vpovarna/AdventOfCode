@@ -19,8 +19,8 @@ public class Problem {
         var inputFile = Utils.readInputFileAsString(2023, 6);
         var problem = new Problem();
 
-        logger.info("Aoc2023, Day5 Problem, Part1: {}", problem.part1(inputFile));
-        logger.info("Aoc2023, Day5 Problem, Part2: {}", problem.part2(inputFile));
+        logger.info("Aoc2023, Day6 Problem, Part1: {}", problem.part1(inputFile));
+        logger.info("Aoc2023, Day6 Problem, Part2: {}", problem.part2(inputFile));
     }
 
     private long part1(String input) {

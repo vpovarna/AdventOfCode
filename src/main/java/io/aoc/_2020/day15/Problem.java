@@ -5,65 +5,52 @@ import io.aoc.utils.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Queue;
+import java.util.*;
 import java.util.concurrent.ArrayBlockingQueue;
 
-// TODO: Finish the problem
 public class Problem {
+    private static final Logger logger = LoggerFactory.getLogger(Problem.class);
+    public static final int DEFAULT_VALUE = 0;
+    public static final int FIRST_INDEX = 0;
+    public static final int LAST_INDEX = 1;
+    public static final int MAX_NR_OF_INDEXES = 2;
 
-    private final static Logger logger = LoggerFactory.getLogger(Problem.class);
 
     public static void main(String[] args) {
         var problem = new Problem();
         var input = Utils.readInputFileAsString(2020, 15);
-        logger.info("Aoc2020, Day10 Problem, Part1: {}", problem.part1(input));
-        logger.info("Aoc2020, Day10 Problem, Part2: {}", problem.part2(input));
+        logger.info("Aoc2020, Day15 Problem, Part1: {}", problem.run(input, 2020));
+        logger.info("Aoc2020, Day15 Problem, Part2: {}", problem.run(input, 30000000));
     }
 
-    private int part1(String input) {
+    private int run(String input, int nrOfIterations) {
         int[] numbers = parseInput(input);
-
-        Map<Integer, Queue<Integer>> storage = new HashMap<>();
+        final Map<Integer, List<Integer>> storage = new HashMap<>();
 
         // initial mapping
         int n = numbers.length;
         for (var i = 0; i < n; i++) {
-            Queue<Integer> queue = new ArrayBlockingQueue<>(2);
-            queue.add(i + 1);
-            storage.put(numbers[i], queue);
+            storage.put(numbers[i], List.of(i + 1));
         }
 
-        var lastNumber = numbers[n -1];
+        var lastNumber = numbers[n - 1];
+        final List<Integer> emptyList = new ArrayList<>();
 
-        for (var i = n; i < n + 3; i++) {
-            Queue<Integer> defaultQueue = new ArrayBlockingQueue<>(1);
-            if (storage.getOrDefault(lastNumber, defaultQueue).size() < 2) {
-                lastNumber = 0;
-                defaultQueue.add(i);
-                if (storage.containsKey(lastNumber)) {
-                    var queue = storage.get(lastNumber);
-                    queue.add(i);
-                    storage.put(lastNumber, queue);
-                } else {
-                    storage.put(lastNumber, defaultQueue);
-                }
+        for (var i = n + 1; i <= nrOfIterations; i++) {
+            var currentList = storage.getOrDefault(lastNumber, emptyList);
+            if (currentList.size() < MAX_NR_OF_INDEXES) {
+                var list = storage.getOrDefault(DEFAULT_VALUE, emptyList);
+                var tmpList = (list.isEmpty()) ? List.of(i) : List.of(i, list.get(FIRST_INDEX));
+                storage.put(DEFAULT_VALUE, tmpList);
+                lastNumber = DEFAULT_VALUE;
             } else {
-                var queue = storage.get(lastNumber);
-                int i1 = queue.poll();
-                int i2 = queue.peek();
-                lastNumber = Math.abs(i2 - i1);
-                queue.add(i);
+                lastNumber = currentList.get(FIRST_INDEX) - currentList.get(LAST_INDEX);
+                List<Integer> list = storage.getOrDefault(lastNumber, emptyList);
+                var tmpList = (list.isEmpty()) ? List.of(i) : List.of(i, list.get(FIRST_INDEX));
+                storage.put(lastNumber, tmpList);
             }
-            System.out.println(storage);
         }
-        return 0;
-    }
-
-    private int part2(String input) {
-        return 0;
+        return lastNumber;
     }
 
     private int[] parseInput(String input) {

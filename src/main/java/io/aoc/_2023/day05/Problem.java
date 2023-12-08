@@ -147,7 +147,8 @@ record MapCoordinates(List<Coordinates> coordinates) {
 record Almanac(List<Long> seeds, List<MapCoordinates> mapCoordinates) {
 }
 
-record SeedRange(long start, long len) {}
+record SeedRange(long start, long len) {
+}
 
 
 class TaskThread implements Runnable {
@@ -167,19 +168,17 @@ class TaskThread implements Runnable {
     public void run() {
         long smallestValue = Long.MAX_VALUE;
         for (var seed = startSeedNr; seed < startSeedNr + count; seed++) {
-            if (globalMin.get() > seed) {
-                long currentSeed = seed;
+            long currentSeed = seed;
 
-                for (var map : maps) {
-                    for (var coordinates : map.coordinates()) {
-                        if (coordinates.sourceRangeStart() <= currentSeed && currentSeed < coordinates.sourceRangeStart() + coordinates.count()) {
-                            currentSeed = coordinates.destRangeStart() + (currentSeed - coordinates.sourceRangeStart());
-                            break;
-                        }
+            for (var map : maps) {
+                for (var coordinates : map.coordinates()) {
+                    if (coordinates.sourceRangeStart() <= currentSeed && currentSeed < coordinates.sourceRangeStart() + coordinates.count()) {
+                        currentSeed = coordinates.destRangeStart() + (currentSeed - coordinates.sourceRangeStart());
+                        break;
                     }
                 }
-                smallestValue = Math.min(smallestValue, currentSeed);
             }
+            smallestValue = Math.min(smallestValue, currentSeed);
         }
         globalMin.set(Math.min(globalMin.get(), smallestValue));
     }
