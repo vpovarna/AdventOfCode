@@ -5,6 +5,9 @@ import io.aoc.utils.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Arrays;
+import java.util.List;
+
 public class Problem {
     private final static Logger logger = LoggerFactory.getLogger(Problem.class);
 
@@ -16,8 +19,7 @@ public class Problem {
     }
 
     private int part1(String input) {
-        parseInput(input);
-        return 0;
+        return run(input);
     }
 
 
@@ -25,13 +27,63 @@ public class Problem {
         return 0;
     }
 
-    private void parseInput(String input) {
+    private int run(String input) {
         var parts = input.split(Constants.EMPTY_LINE);
-        System.out.println(parts[0]);
-        System.out.println(parts[1]);
-        System.out.println(parts[2]);
+        var rules = createRules(parts[0]);
+        var nearbyTickets = getNearbyTickets(parts[2]);
 
+        return nearbyTickets.stream()
+                .filter(ticket -> isInvalidTicket(ticket, rules))
+                .mapToInt(x -> x)
+                .sum();
     }
 
+    private boolean isInvalidTicket(Integer ticket, List<Rules> rules) {
+        return rules.stream()
+                .noneMatch(rule -> rule.isTicketValid(ticket));
+    }
+
+    private List<Rules> createRules(String input) {
+        var lines = input.split("\n");
+        return Arrays.stream(lines)
+                .map(line -> {
+                    String[] parts = line.split(": ");
+                    var ruleName = parts[0];
+                    var rowRanges = parts[1].split(" or ");
+                    return new Rules(ruleName, createRule(rowRanges[0]), createRule(rowRanges[1]));
+                })
+                .toList();
+    }
+
+    private int[] createRule(String rule) {
+        String[] parts = rule.split("-");
+        return new int[]{Integer.parseInt(parts[0]), Integer.parseInt(parts[1])};
+    }
+
+    private List<Integer> getNearbyTickets(String input) {
+        return Arrays.stream(input.split(Constants.EOL))
+                .skip(1)
+                .flatMap(line -> Arrays.stream(line.split(","))
+                        .map(Integer::parseInt))
+                .toList();
+    }
+
+}
+
+record Rules(String name, int[] firstRule, int[] secondRule) {
+
+    public boolean isTicketValid(Integer ticketNumber) {
+        return (firstRule[0] <= ticketNumber && ticketNumber <= firstRule[1]) ||
+                (secondRule[0] <= ticketNumber && ticketNumber <= secondRule[1]);
+    }
+
+    @Override
+    public String toString() {
+        return "[" +
+                "name='" + name + '\'' +
+                ", firstRule=" + Arrays.toString(firstRule) +
+                ", secondRule=" + Arrays.toString(secondRule) +
+                ']';
+    }
 }
 
