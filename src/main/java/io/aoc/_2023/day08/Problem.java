@@ -5,8 +5,8 @@ import io.aoc.utils.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.regex.Pattern;
 
 public class Problem {
 
@@ -25,34 +25,49 @@ public class Problem {
         var instructions = labelMaps.instructions();
         var directions = labelMaps.directions();
 
-        var instructionsSize = instructions.length;
+        return getIndex("AAA", directions, instructions, instructions.size());
+    }
 
-        var direction = "AAA";
+    private long part2(String input) {
+        LabelMaps labelMaps = parseInput(input);
+        String[] startingNodes = extractStartingNodes(labelMaps.directions().keySet());
+
+        var instructions = labelMaps.instructions();
+        var directions = labelMaps.directions();
+
+        return Arrays.stream(startingNodes)
+                .mapToLong(direction -> getIndex(direction, directions, instructions, instructions.size()))
+                .reduce(1L, this::lcm);
+    }
+
+    private static int getIndex(String currentDirection, Map<String, Direction> directions, List<String> instructions, int instructionsSize) {
         var index = 0;
 
-        while (!direction.equals("ZZZ")) {
-            final Direction currentDirections = directions.get(direction);
-            final String currentInstruction = instructions[index % instructionsSize];
+        while (!Pattern.matches("..Z", currentDirection)) {
+            final Direction currentDirections = directions.get(currentDirection);
+            final String currentInstruction = instructions.get(index % instructionsSize);
 
             if (currentInstruction.equals("L")) {
-                direction = currentDirections.left();
+                currentDirection = currentDirections.left();
             } else {
-                direction = currentDirections.right();
+                currentDirection = currentDirections.right();
             }
             index += 1;
         }
         return index;
     }
 
-    private int part2(String input) {
-        return 1;
+    private long lcm(long a, long b) {
+        return a * b / gcd(a, b);
+    }
+
+    long gcd(long a, long b) {
+        return b == 0 ? a : gcd(b, a % b);
     }
 
     private LabelMaps parseInput(String input) {
         String[] lines = input.split(Constants.EMPTY_LINE);
-
-        var instructions = lines[0].split("");
-
+        var instructions = Arrays.asList(lines[0].split(""));
         var directions = new HashMap<String, Direction>();
 
         // Replace this with regular expressions.
@@ -70,10 +85,14 @@ public class Problem {
         return new LabelMaps(instructions, directions);
     }
 
-
+    private String[] extractStartingNodes(Set<String> allDirections) {
+        return allDirections.stream()
+                .filter(s -> s.endsWith("A"))
+                .toArray(String[]::new);
+    }
 }
 
-record LabelMaps(String[] instructions, Map<String, Direction> directions) {
+record LabelMaps(List<String> instructions, Map<String, Direction> directions) {
 }
 
 record Direction(String left, String right) {
