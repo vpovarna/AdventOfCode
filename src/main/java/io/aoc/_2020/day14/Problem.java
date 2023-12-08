@@ -10,7 +10,6 @@ import java.util.*;
 public class Problem {
 
     private final static Logger logger = LoggerFactory.getLogger(Problem.class);
-    private List<String> rawData;
 
     public static void main(String[] args) {
         var problem = new Problem();
