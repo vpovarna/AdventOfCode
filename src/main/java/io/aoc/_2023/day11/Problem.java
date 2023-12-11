@@ -15,28 +15,24 @@ public class Problem {
         var inputFile = Utils.readInputFileAsString(2023, 11);
 
         var problem = new Problem();
-        logger.info("Aoc2023, Day10 Problem, Part1: {}", problem.part1(inputFile));
-        logger.info("Aoc2023, Day10 Problem, Part2: {}", problem.part2(inputFile));
+        logger.info("Aoc2023, Day11 Problem, Part1: {}", problem.solve(inputFile, 2));
+        logger.info("Aoc2023, Day11 Problem, Part2: {}", problem.solve(inputFile, 1_000_000));
     }
 
-    private int part1(String input) {
+    private long solve(String input, int factor) {
         var grid = getGrid(input);
         var galaxyCoordinate = getGalaxyCoordinate(grid);
         var n = galaxyCoordinate.size();
 
-        var ans = 0;
+        long ans = 0L;
         for (var i = 0 ; i< n; i++) {
             for (var j = i; j < n; j++) {
-                int d = calculateDistance(galaxyCoordinate.get(i), galaxyCoordinate.get(j), grid);
+                long d = calculateDistance(galaxyCoordinate.get(i), galaxyCoordinate.get(j), factor, grid);
                 ans += d;
             }
         }
 
         return ans;
-    }
-
-    private int part2(String input) {
-        return 0;
     }
 
     private char[][] getGrid(String input) {
@@ -56,24 +52,25 @@ public class Problem {
         return grid;
     }
 
-    private int calculateDistance(Coordinate coordinate1, Coordinate coordinate2, char[][] grid) {
+    // Manhattan distance
+    private long calculateDistance(Coordinate coordinate1, Coordinate coordinate2, int factor, char[][] grid) {
         var i1 = Math.min(coordinate1.x(), coordinate2.x());
         var i2 = Math.max(coordinate1.x(), coordinate2.x());
 
         var j1 = Math.min(coordinate1.y(), coordinate2.y());
         var j2 = Math.max(coordinate1.y(), coordinate2.y());
 
-        var ans = 0;
+        long ans = 0L;
         for (var i = i1; i < i2; i++) {
             ans +=1;
             if (isEmptyRow(i, grid)) {
-                ans +=1;
+                ans += factor - 1;
             }
         }
         for (var j = j1; j < j2; j++) {
             ans +=1;
             if (isEmptyCol(j, grid)) {
-                ans +=1;
+                ans += factor - 1;
             }
         }
 
