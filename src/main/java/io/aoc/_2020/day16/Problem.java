@@ -5,8 +5,7 @@ import io.aoc.utils.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 public class Problem {
     private final static Logger logger = LoggerFactory.getLogger(Problem.class);
@@ -19,15 +18,6 @@ public class Problem {
     }
 
     private int part1(String input) {
-        return run(input);
-    }
-
-
-    private int part2(String input) {
-        return 0;
-    }
-
-    private int run(String input) {
         var parts = input.split(Constants.EMPTY_LINE);
         var rules = createRules(parts[0]);
         var nearbyTickets = getNearbyTickets(parts[2]);
@@ -38,9 +28,67 @@ public class Problem {
                 .sum();
     }
 
+    private long part2(String input) {
+        var parts = input.split(Constants.EMPTY_LINE);
+        var rules = createRules(parts[0]);
+        var validTickets = getTickets(parts[1]);
+        var nearbyTickets = getNearbyTicketsAsGrid(parts[2], rules);
+        System.out.println(nearbyTickets);
+        for (var nearbyTicket: nearbyTickets) {
+            System.out.print(nearbyTicket.size());
+            System.out.println();
+        }
+//        var nearbyTicketsByColumn = transposed(nearbyTickets);
+//        System.out.println(nearbyTicketsByColumn);
+
+//        var nearbyTicketsRules = new ArrayList<List<String>>();
+//        for (var tickets : nearbyTicketsByColumn) {
+//            var ticketRules = new ArrayList<String>();
+//            for (var rule : rules) {
+//                if (areTicketsValid(tickets, rule)) {
+//                    ticketRules.add(rule.name());
+//                }
+//            }
+//            nearbyTicketsRules.add(ticketRules);
+//        }
+//
+//        var labels = nearbyTicketsRules.stream()
+//                .filter(list -> !list.isEmpty())
+//                .toList();
+//
+//        var result = 1L;
+//        var allLabels = labels.getFirst();
+//        for (var i = 0; i < allLabels.size(); i++) {
+//            if (allLabels.get(i).startsWith("departure")) {
+//                result = result * validTickets.get(i);
+//            }
+//        }
+//
+//        return result;
+        return 0;
+    }
+
+    private List<List<Integer>> transposed(List<List<Integer>> nearbyTickets) {
+        var arr = new ArrayList<List<Integer>>();
+        for (var i = 0; i < nearbyTickets.getFirst().size(); i++) {
+            var collectList = new ArrayList<Integer>();
+            for (List<Integer> nearbyTicket : nearbyTickets) {
+                collectList.add(nearbyTicket.get(i));
+            }
+            arr.add(collectList);
+        }
+
+        return arr;
+    }
+
     private boolean isInvalidTicket(Integer ticket, List<Rules> rules) {
         return rules.stream()
                 .noneMatch(rule -> rule.isTicketValid(ticket));
+    }
+
+    private boolean areTicketsValid(List<Integer> tickets, Rules rule) {
+        return tickets.stream()
+                .allMatch(rule::isTicketValid);
     }
 
     private List<Rules> createRules(String input) {
@@ -65,6 +113,25 @@ public class Problem {
                 .skip(1)
                 .flatMap(line -> Arrays.stream(line.split(","))
                         .map(Integer::parseInt))
+                .toList();
+    }
+
+    private List<List<Integer>> getNearbyTicketsAsGrid(String input, List<Rules> rules) {
+        return Arrays.stream(input.split(Constants.EOL))
+                .skip(1)
+                .map(line -> Arrays.stream(line.split(","))
+                        .map(Integer::parseInt)
+                        .filter(ticketNumber -> !isInvalidTicket(ticketNumber, rules))
+                        .toList())
+                .toList();
+    }
+
+    private List<Integer> getTickets(String rowTickets) {
+        return Arrays.stream(rowTickets.split(Constants.EOL))
+                .skip(1)
+                .flatMap(line -> Arrays.stream(line.split(Constants.COMMA))
+                        .map(Integer::parseInt)
+                )
                 .toList();
     }
 
