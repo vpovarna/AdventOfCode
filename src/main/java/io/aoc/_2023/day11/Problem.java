@@ -106,18 +106,6 @@ public class Problem {
         }
         return list;
     }
-
-    private void printGrid(char[][] grid) {
-        var m = grid[0].length;
-
-        for (char[] chars : grid) {
-            for (var j = 0; j < m; j++) {
-                System.out.print(chars[j]);
-            }
-            System.out.println();
-        }
-    }
-
 }
 
 record Coordinate(int x, int y) {
