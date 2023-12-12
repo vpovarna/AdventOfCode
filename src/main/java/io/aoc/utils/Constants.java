@@ -1,7 +1,7 @@
 package io.aoc.utils;
 
 public final class Constants {
-    public static final String EOL = "\n";
+    public static final String EOL =  getOsName().startsWith("Windows") ? "\r\n" : "\n";
     public static final String EMPTY_LINE = getOsName().startsWith("Windows") ? "\r\n\r\n" : "\n\n";
     public static final String EMPTY_STRING = " ";
     public static final String DOTS = ":";
