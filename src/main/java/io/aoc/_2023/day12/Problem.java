@@ -10,6 +10,8 @@ import java.util.*;
 public class Problem {
     private static final Logger logger = LoggerFactory.getLogger(Problem.class);
 
+    private static final HashMap<State, Long> MEMORY = new HashMap<>();
+
     public static void main(String[] args) {
         var inputFile = Utils.readInputFileAsString(2023, 12);
 
@@ -26,8 +28,23 @@ public class Problem {
                 .sum();
     }
 
-    private int part2(String input) {
-        return -1;
+    private long part2(String input) {
+        var conditionRecords = parseInput(input);
+        var ans = 0L;
+        for (var conditionRecord : conditionRecords) {
+            var spring = conditionRecord.spring();
+            var newSpringsLine = spring + ('?' + spring).repeat(4);
+            var initRecords = Arrays.stream(conditionRecord.rules())
+                    .boxed()
+                    .toList();
+            var newNumbers = new LinkedList<>(initRecords);
+            for (var i = 0; i < 4; i++) {
+                newNumbers.addAll(initRecords);
+            }
+
+            ans += combinationsCount(newSpringsLine, newNumbers, false);
+        }
+        return ans;
     }
 
     private List<ConditionRecords> parseInput(String input) {
@@ -42,6 +59,64 @@ public class Problem {
                 .toList();
     }
 
+    public long combinationsCount(String line, List<Integer> numbers, boolean inGroup) {
+        var state = new State(line, numbers, inGroup);
+        var cachedValue = cacheRead(state);
+
+        if (cachedValue != null) {
+            return cachedValue;
+        }
+
+        if (line.isEmpty()) {
+            return numbers.isEmpty() || (numbers.size() == 1 && numbers.getFirst() == 0) ? 1 : 0;
+        }
+
+        var head = line.charAt(0);
+        var remainingLine = line.substring(1);
+
+        switch (head) {
+            case '.' -> {
+                // The "." can be part of the normal string chars or a replacement from "?". We need to differentiate these two cases.
+                if (inGroup) {
+                    // Nothing to do.
+                    if (numbers.getFirst() != 0) {
+                        return 0;
+                    }
+                    // Cache the result and move fw.
+                    return cache(state, combinationsCount(remainingLine, numbers.subList(1, numbers.size()), false));
+                }
+                return cache(state, combinationsCount(remainingLine, numbers, false));
+            }
+            case '#' -> {
+                if (!numbers.isEmpty() && numbers.getFirst() > 0) {
+                    var reducedNumbers = new LinkedList<>(numbers);
+                    reducedNumbers.set(0, numbers.getFirst() - 1);
+                    return cache(state, combinationsCount(remainingLine, reducedNumbers, true));
+                }
+            }
+            case '?' -> {
+                return cache(
+                        state,
+                        combinationsCount('.' + remainingLine, numbers, inGroup)
+                                + combinationsCount('#' + remainingLine, numbers, inGroup)
+                );
+            }
+            default -> throw new IllegalArgumentException("Illegal character");
+        }
+
+        return 0;
+    }
+
+    private long cache(State state, long result) {
+        MEMORY.put(state, result);
+        return result;
+    }
+
+    private Long cacheRead(State state) {
+        return MEMORY.getOrDefault(state, null);
+    }
+
+    // Brute Force approach. Works for part1 since the max size of possibilities is 2^20 ~= 1_000_000
     private Integer getAllPossibleSolutions(ConditionRecords conditionRecords) {
         var count = 0;
 
@@ -53,18 +128,15 @@ public class Problem {
             var chars = currentLine.toCharArray();
             for (var i = 0; i < chars.length; i++) {
                 if (chars[i] == '?') {
+
                     chars[i] = '#';
-                    String s1 = new String(chars);
-                    if (!s1.contains("?") && Arrays.equals(calculateDistribution(s1), conditionRecords.rules())) {
-                        count += 1;
-                    }
+                    String s1 = String.valueOf(chars);
+                    count += getCount(s1, conditionRecords.rules());
                     stack.add(s1);
 
                     chars[i] = '.';
-                    String s2 = new String(chars);
-                    if (!s2.contains("?") && Arrays.equals(calculateDistribution(s2), conditionRecords.rules())) {
-                        count += 1;
-                    }
+                    String s2 = String.valueOf(chars);
+                    count += getCount(s2, conditionRecords.rules());
                     stack.add(s2);
                     break;
                 }
@@ -73,6 +145,10 @@ public class Problem {
         }
 
         return count;
+    }
+
+    private int getCount(String s, int[] rules) {
+        return (!s.contains("?") && Arrays.equals(calculateDistribution(s), rules)) ? 1 : 0;
     }
 
     private int[] calculateDistribution(String spring) {
@@ -96,9 +172,21 @@ public class Problem {
 }
 
 record ConditionRecords(String spring, int[] rules) {
+    @Override
+    public boolean equals(Object obj) {
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return 0;
+    }
 
     @Override
     public String toString() {
         return "[" + spring + "," + Arrays.toString(rules) + "]";
     }
+}
+
+record State(String line, List<Integer> damaged, boolean inGroup) {
 }
