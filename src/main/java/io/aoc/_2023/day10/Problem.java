@@ -10,6 +10,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+//TODO: Refactor needed
 public class Problem {
     private static final Logger logger = LoggerFactory.getLogger(Problem.class);
 
@@ -17,8 +18,8 @@ public class Problem {
         var inputFile = Utils.readInputFileAsString(2023, 10);
 
         var problem = new Problem();
-        logger.info("Aoc2023, Day11 Problem, Part1: {}", problem.part1(inputFile));
-        logger.info("Aoc2023, Day11 Problem, Part2: {}", problem.part2(inputFile));
+        logger.info("Aoc2023, Day10 Problem, Part1: {}", problem.part1(inputFile));
+        logger.info("Aoc2023, Day10 Problem, Part2: {}", problem.part2(inputFile));
     }
 
     private int part1(String input) {
