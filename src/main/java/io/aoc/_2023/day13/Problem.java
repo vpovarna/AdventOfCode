@@ -8,7 +8,6 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.function.Function;
 import java.util.function.ToIntFunction;
 
 public class Problem {
@@ -25,18 +24,6 @@ public class Problem {
     private int part1(String input) {
         var lineMultiplicationFactor = 100;
         var grids = parseInput(input);
-//        var result = 0;
-//        for (var grid : grids) {
-//            int verticalNumberOfReflections = getReflectionSize(grid.transpose());
-//            if (verticalNumberOfReflections > 0) {
-//                result += verticalNumberOfReflections;
-//                continue;
-//            }
-//
-//            result += lineMultiplicationFactor * getReflectionSize(grid);
-//        }
-        //        return result;
-
 
         ToIntFunction<Grid> count = grid -> lineMultiplicationFactor * getReflectionLineIndex(grid) + getReflectionLineIndex(grid.transpose());
 
@@ -60,20 +47,21 @@ public class Problem {
         return new Grid(lines);
     }
 
-    private boolean hasReflection(List<String> lines) {
-        if (lines.size() < 2) {
-            return false;
-        }
+    private boolean hasReflection(List<String> lines, int index) {
+        var n = lines.size();
+        var m = lines.get(0).length();
 
-        var left = 0;
-        var right = lines.size() - 1;
+        for (var j = 0; j < m; j++) {
+            for (var i = 0; i < n; i++) {
+                var k = index * 2 + 1 - i;
+                if (k < 0 || k >= n) {
+                    continue;
+                }
 
-        while (left < right) {
-            if (!lines.get(left).equals(lines.get(right))) {
-                return false;
+                if (lines.get(i).charAt(j) != lines.get(k).charAt(j)) {
+                    return false;
+                }
             }
-            left += 1;
-            right -= 1;
         }
 
         return true;
@@ -83,51 +71,14 @@ public class Problem {
         var gridLines = grid.lines();
 
         int size = gridLines.size();
-        for (var i = 0; i < size; i++) {
-            var subGridLines = gridLines.subList(i, size);
-            if (hasReflection(subGridLines)) {
-                return subGridLines.size() / 2 + 1;
+        for (var i = 0; i < size - 1; i++) {
+            if (hasReflection(gridLines, i)) {
+                return i + 1;
             }
         }
 
         return 0;
     }
-
-    private int summary(Grid grid) {
-        var gridLines = grid.lines();
-        var n = gridLines.size();
-        var m = gridLines.get(0).length();
-
-        var horiz = -1;
-        for (var i = 0; i < n; i++) {
-            var subGridLines = gridLines.subList(i, n);
-            if (hasReflection(subGridLines)) {
-                horiz = i;
-                break;
-            }
-        }
-
-        var vert = -1;
-        var transposedGridLines = grid.transpose().lines();
-        for (var j = 0; j < m; j++) {
-            var subGridLines = transposedGridLines.subList(j, m);
-            if (hasReflection(subGridLines)) {
-                vert = j - 1;
-                break;
-            }
-        }
-
-        var ans = 0;
-        if (vert != -1) {
-            ans += vert + 1;
-        }
-
-        if (horiz != -1) {
-            ans += 100 * (horiz + 1);
-        }
-        return ans;
-    }
-
 }
 
 record Grid(List<String> lines) {
