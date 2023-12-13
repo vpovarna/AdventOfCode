@@ -35,13 +35,14 @@ public class Problem {
 //
 //            result += lineMultiplicationFactor * getReflectionSize(grid);
 //        }
+        //        return result;
+
 
         ToIntFunction<Grid> count = grid -> lineMultiplicationFactor * getReflectionLineIndex(grid) + getReflectionLineIndex(grid.transpose());
 
         return grids.stream()
                 .mapToInt(count)
                 .sum();
-//        return result;
     }
 
     private int part2(String inputFile) {
