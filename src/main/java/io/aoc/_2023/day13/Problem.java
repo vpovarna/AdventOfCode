@@ -13,6 +13,8 @@ import java.util.stream.Collectors;
 
 public class Problem {
     private static final Logger logger = LoggerFactory.getLogger(Problem.class);
+    private static final int MULTIPLICATION_FACTOR = 100;
+
 
     public static void main(String[] args) {
         var inputFile = Utils.readInputFileAsString(2023, 13);
@@ -23,10 +25,10 @@ public class Problem {
     }
 
     private int part1(String input) {
-        var lineMultiplicationFactor = 100;
         var grids = parseInput(input);
 
-        ToIntFunction<Grid> count = grid -> lineMultiplicationFactor * (getReflectionLineIndex(grid, -1) + 1) + getReflectionLineIndex(grid.transpose(), -1) + 1;
+        ToIntFunction<Grid> count = grid -> MULTIPLICATION_FACTOR * (getReflectionLineIndex(grid, -1) + 1) +
+                getReflectionLineIndex(grid.transpose(), -1) + 1;
 
         return grids.stream()
                 .mapToInt(count)
@@ -47,6 +49,7 @@ public class Problem {
     }
 
     private Grid getGrid(String rowGrid) {
+        // Grid lines should be mutable.
         var lines = Arrays
                 .stream(rowGrid.split(Constants.EOL))
                 .collect(Collectors.toList());
@@ -92,37 +95,31 @@ public class Problem {
         var origHorizontalLineNr = getReflectionLineIndex(grid, -1);
         var origVerticalLineNr = getReflectionLineIndex(grid.transpose(), -1);
 
-
         for (var i = 0; i < gridLines.size(); i++) {
             var currentLine = gridLines.get(i).toCharArray();
             for (var j = 0; j < currentLine.length; j++) {
-                if (gridLines.get(i).charAt(j) == '#') {
-                    currentLine[j] = '.';
-                } else {
-                    currentLine[j] = '#';
-                }
-                gridLines.set(i, String.valueOf(currentLine));
+                // Clone the currentLine to a tmp array.
+                var tmpArray = currentLine.clone();
+                tmpArray[j] = (gridLines.get(i).charAt(j) == '#') ? '.' : '#';
 
+                // Update grid with the new string
+                gridLines.set(i, String.valueOf(tmpArray));
+
+                // Get the new reflection line index
                 var newGrid = new Grid(gridLines);
                 var newHorizontalLineNr = getReflectionLineIndex(newGrid, origHorizontalLineNr);
                 var newVerticalLineNr = getReflectionLineIndex(newGrid.transpose(), origVerticalLineNr);
 
-                newGrid.lines().forEach(System.out::println);
-                System.out.println("-------------------------");
-//                System.out.println(i + " " + j);
-//                System.out.println("(" + origHorizontalLineNr + "," + origVerticalLineNr + ")");
-//                System.out.println("(" + newHorizontalLineNr + "," + newVerticalLineNr + ")");
+                // Check if the new indexes are different from the default values or the original values.
+                if ((newHorizontalLineNr != -1 || newVerticalLineNr != -1) &&
+                        (newHorizontalLineNr != origHorizontalLineNr || newVerticalLineNr != origVerticalLineNr)) {
+                    return (newHorizontalLineNr != -1) ?
+                            (newHorizontalLineNr + 1) * MULTIPLICATION_FACTOR :
+                            newVerticalLineNr + 1;
+                }
 
-//                var result = 0;
-
-//                   if ((newHorizontalLineNr != -1 && newVerticalLineNr != -1) || (newHorizontalLineNr != origHorizontalLineNr && newVerticalLineNr != origVerticalLineNr)) {
-//                    if (newHorizontalLineNr != -1) {
-//                        result += (newHorizontalLineNr + 1) * 100;
-//                    } else {
-//                        result += newVerticalLineNr + 1;
-//                    }
-//                    return result;
-//                }
+                // Reset updated line
+                gridLines.set(i, String.valueOf(currentLine));
             }
         }
 
