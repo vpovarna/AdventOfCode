@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-var inputFile = flag.String("inputFile", "day01.input", "Relative file path to use as input")
+var inputFile = flag.String("inputFile", "day01.txt", "Relative file path to use as input")
 
 func main() {
 	flag.Parse()
@@ -20,8 +20,8 @@ func main() {
 
 	input := string(bytes)
 
-	fmt.Printf("AoC 2018, Day1, Part1 result is: %d \n", part1(&input))
-	fmt.Printf("AoC 2018, Day1, Part2 result is: %d \n", part2(&input))
+	fmt.Printf("AoC 2018, Day1, Part1 solution is: %d \n", part1(&input))
+	fmt.Printf("AoC 2018, Day1, Part2 solution is: %d \n", part2(&input))
 }
 
 func part1(input *string) int {
