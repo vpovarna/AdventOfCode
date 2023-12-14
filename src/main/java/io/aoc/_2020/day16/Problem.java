@@ -5,11 +5,13 @@ import io.aoc.utils.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.IntPredicate;
 
 public class Problem {
-    private final static Logger logger = LoggerFactory.getLogger(Problem.class);
+    private static final Logger logger = LoggerFactory.getLogger(Problem.class);
 
     public static void main(String[] args) {
         var problem = new Problem();
@@ -19,45 +21,54 @@ public class Problem {
     }
 
     private int part1(String input) {
-        return run(input);
-    }
+        var problemInput = parse(input);
+        return problemInput.tickets().stream()
+                .filter(ticket -> !isValidTicket(ticket, problemInput.rules()))
+                .mapToInt(x -> x)
+                .sum();
+   }
 
 
     private int part2(String input) {
+        var problemInput = parse(input);
+        var tickets = problemInput.tickets();
+        var rules = problemInput.rules();
+
+//        // keep valid tickets
+//        tickets.stream()
+//                .map(ticket -> )
         return 0;
     }
 
-    private int run(String input) {
-        var parts = input.split(Constants.EMPTY_LINE);
-        var rules = createRules(parts[0]);
-        var nearbyTickets = getNearbyTickets(parts[2]);
-
-        return nearbyTickets.stream()
-                .filter(ticket -> isInvalidTicket(ticket, rules))
-                .mapToInt(x -> x)
-                .sum();
-    }
-
-    private boolean isInvalidTicket(Integer ticket, List<Rules> rules) {
+    private boolean isValidTicket(Integer ticket, List<Rule> rules) {
         return rules.stream()
-                .noneMatch(rule -> rule.isTicketValid(ticket));
+                .anyMatch(rule -> rule.isValid().test(ticket));
     }
 
-    private List<Rules> createRules(String input) {
-        var lines = input.split("\n");
+    private ProblemInput parse(String input) {
+        var parts = input.split(Constants.EMPTY_LINE);
+        var fields = getFields(parts[0]);
+        var tickets = getNearbyTickets(parts[2]);
+
+        return new ProblemInput(fields, tickets);
+    }
+
+    private List<Rule> getFields(String input) {
+        var lines = input.split(Constants.EOL);
         return Arrays.stream(lines)
                 .map(line -> {
                     String[] parts = line.split(": ");
                     var ruleName = parts[0];
                     var rowRanges = parts[1].split(" or ");
-                    return new Rules(ruleName, createRule(rowRanges[0]), createRule(rowRanges[1]));
+                    var firstRule = rowRanges[0].split("-");
+                    var secondRule = rowRanges[1].split("-");
+                    IntPredicate isValid = ticketNumber ->
+                            (Integer.parseInt(firstRule[0]) <= ticketNumber && ticketNumber <= Integer.parseInt(firstRule[1])) ||
+                                    (Integer.parseInt(secondRule[0]) <= ticketNumber && ticketNumber <= Integer.parseInt(secondRule[1]));
+
+                    return new Rule(ruleName, isValid);
                 })
                 .toList();
-    }
-
-    private int[] createRule(String rule) {
-        String[] parts = rule.split("-");
-        return new int[]{Integer.parseInt(parts[0]), Integer.parseInt(parts[1])};
     }
 
     private List<Integer> getNearbyTickets(String input) {
@@ -67,23 +78,8 @@ public class Problem {
                         .map(Integer::parseInt))
                 .toList();
     }
-
 }
 
-record Rules(String name, int[] firstRule, int[] secondRule) {
+record ProblemInput(List<Rule> rules, List<Integer> tickets) {}
 
-    public boolean isTicketValid(Integer ticketNumber) {
-        return (firstRule[0] <= ticketNumber && ticketNumber <= firstRule[1]) ||
-                (secondRule[0] <= ticketNumber && ticketNumber <= secondRule[1]);
-    }
-
-    @Override
-    public String toString() {
-        return "[" +
-                "name='" + name + '\'' +
-                ", firstRule=" + Arrays.toString(firstRule) +
-                ", secondRule=" + Arrays.toString(secondRule) +
-                ']';
-    }
-}
-
+record Rule(String name, IntPredicate isValid) {}
