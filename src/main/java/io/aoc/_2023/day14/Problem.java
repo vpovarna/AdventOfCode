@@ -135,7 +135,8 @@ public class Problem {
                 if (memory.containsKey(grid)) {
                     var firstSeenIndex = memory.get(grid);
                     var repeatingWindow = cycle - firstSeenIndex;
-                    cycle = cycles - ((cycles - firstSeenIndex) % repeatingWindow);
+                    int jumpCycles = (cycles - firstSeenIndex) % repeatingWindow;
+                    cycle = cycles - jumpCycles;
                     enableMemory = false;
                 } else {
                     memory.put(new HashMap<>(grid), cycle);
