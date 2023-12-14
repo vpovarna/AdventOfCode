@@ -52,7 +52,7 @@ func part2(input *string) int {
 func decorate(lines []string) (int, int) {
 	grid := make(map[Point]int)
 
-	// Act like a hashset. Keep track of the overlap claim ids
+	// Act like a HashSet. Keep track of the overlap claim ids
 	ids := make(map[int]bool)
 	overlap := 0
 
