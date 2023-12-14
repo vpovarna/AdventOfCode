@@ -133,9 +133,16 @@ public class Problem {
 
             if (enableMemory) {
                 if (memory.containsKey(grid)) {
+                    // Get the index where the grid exist
                     var firstSeenIndex = memory.get(grid);
+
+                    // Determine the repeating window -> after how many iterations you obtain the same grid.
                     var repeatingWindow = cycle - firstSeenIndex;
+
+                    // Getting the number of jumpCycles
                     int jumpCycles = (cycles - firstSeenIndex) % repeatingWindow;
+
+                    // Obtain the new cycle index.
                     cycle = cycles - jumpCycles;
                     enableMemory = false;
                 } else {
