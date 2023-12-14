@@ -13,7 +13,7 @@ type runeTuple struct {
 	b rune
 }
 
-var inputFile = flag.String("inputFile", "day02.txt", "Relative file path to use as input")
+var inputFile = flag.String("inputFile", "input.txt", "Relative file path to use as input")
 
 func main() {
 	flag.Parse()
@@ -27,7 +27,6 @@ func main() {
 
 	fmt.Printf("AoC 2018, Day2, Part1 solution is: %d \n", part1(&input))
 	fmt.Printf("AoC 2018, Day2, Part2 solution is: %s \n", part2(&input))
-
 }
 
 func part1(input *string) int {
