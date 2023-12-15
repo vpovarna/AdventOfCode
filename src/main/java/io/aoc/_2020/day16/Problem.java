@@ -42,9 +42,17 @@ public class Problem {
         var rules = problemInput.rules();
 
         // keep valid tickets
-        tickets.stream()
-                .filter(ticketList -> !areAllTicketsValid(ticketList, rules).isEmpty())
-                .forEach(System.out::println);
+        var sum  = tickets.stream()
+                .filter(ticketList -> areAllTicketsValid(ticketList, rules))
+                .mapToInt(line -> {
+                    var s = line.stream().mapToInt(x -> x).sum();
+//                    System.out.println(line);
+//                    System.out.println(s);
+                    return s;
+                })
+                .sum();
+
+        System.out.println(sum);
         return 0;
     }
 
@@ -54,10 +62,9 @@ public class Problem {
                 .toList();
     }
 
-    private List<Integer> areAllTicketsValid(List<Integer> tickets, List<Rule> rules) {
+    private Boolean areAllTicketsValid(List<Integer> tickets, List<Rule> rules) {
         return tickets.stream()
-                .filter(ticket -> rules.stream().allMatch(rule -> rule.isValid().test(ticket)))
-                .toList();
+                .allMatch(ticket -> rules.stream().anyMatch(rule -> rule.isValid().test(ticket)));
     }
 
     private ProblemInput parse(String input) {
