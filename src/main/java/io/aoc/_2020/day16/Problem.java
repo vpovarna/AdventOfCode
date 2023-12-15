@@ -5,11 +5,13 @@ import io.aoc.utils.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.function.IntPredicate;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class Problem {
     private static final Logger logger = LoggerFactory.getLogger(Problem.class);
@@ -36,24 +38,52 @@ public class Problem {
     }
 
 
-    private int part2(String input) {
+    private long part2(String input) {
         var problemInput = parse(input);
         var tickets = problemInput.tickets();
-        var rules = problemInput.rules();
+        var rules = new HashSet<>(problemInput.rules());
 
         // keep valid tickets
-        var sum  = tickets.stream()
-                .filter(ticketList -> areAllTicketsValid(ticketList, rules))
-                .mapToInt(line -> {
-                    var s = line.stream().mapToInt(x -> x).sum();
-//                    System.out.println(line);
-//                    System.out.println(s);
-                    return s;
-                })
-                .sum();
+        var validTickets = tickets.stream()
+                .filter(ticketList -> allMatch(ticketList, rules))
+                .collect(Collectors.toList());
+        // System.out.println(validTickets);
 
-        System.out.println(sum);
-        return 0;
+        // Extract columns
+        var columns = new HashSet<Integer>(IntStream.range(0, rules.size()).boxed().toList());
+
+//        while (!columns.isEmpty()) {
+            for (var column : columns) {
+                var valuesInColumn = tickets.stream()
+                        .map(ticketList -> ticketList.get(column))
+                        .toList();
+
+                var matchedRules = getMatchRules(rules, valuesInColumn);
+                System.out.println(matchedRules);
+                System.out.println("-----------------------");
+
+//                var valuesInColumn = (from ticket in tickets select ticket[column]).ToArray();
+
+//                var candidates = FieldCandidates(fields, valuesInColumn);
+//                if (candidates.Length == 1)
+//                {
+//                    var field = candidates.Single();
+//                    fields.Remove(field);
+//                    columns.Remove(column);
+//                    if (field.name.StartsWith("departure"))
+//                    {
+//                        res *= valuesInColumn.First();
+//                    }
+//
+//                    break;
+//                }
+            }
+//        }
+        System.out.println(columns);
+        var res = 1L;
+
+
+        return res;
     }
 
     private List<Integer> getInvalidTickets(List<Integer> tickets, List<Rule> rules) {
@@ -62,9 +92,23 @@ public class Problem {
                 .toList();
     }
 
-    private Boolean areAllTicketsValid(List<Integer> tickets, List<Rule> rules) {
+    private Boolean allMatch(List<Integer> tickets, HashSet<Rule> rules) {
         return tickets.stream()
                 .allMatch(ticket -> rules.stream().anyMatch(rule -> rule.isValid().test(ticket)));
+    }
+
+    private List<String> getMatchRules(HashSet<Rule> rules, List<Integer> tickets) {
+        var arr = new ArrayList<String>();
+
+        for (var ticket : tickets) {
+            var matchingRules = rules.stream()
+                    .filter(rule -> rule.isValid().test(ticket))
+                    .map(Rule::name)
+                    .toList();
+            arr.addAll(matchingRules);
+        }
+
+        return arr;
     }
 
     private ProblemInput parse(String input) {
