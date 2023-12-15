@@ -1,49 +1,50 @@
 package main
 
 import (
-	"bufio"
 	"flag"
 	"fmt"
 	"os"
 	"strings"
 )
 
-var inputFile = flag.String("inputFile", "input.txt", "Relative file path to use as input.")
-var partB = flag.Bool("partB", false, "Whether to use the Part B logic.")
+var inputFile = flag.String("inputFile", "input.txt", "Relative file path to use as input")
 
 func main() {
+
 	flag.Parse()
-	f, err := os.Open(*inputFile)
+	bytes, err := os.ReadFile(*inputFile)
+
 	if err != nil {
-		return
+		panic(err)
 	}
-	defer f.Close()
 
-	r := bufio.NewReader(f)
-	l, _ := r.ReadString('\n')
-	l = l[:len(l)-1]
+	input := string(bytes)
 
-	if !*partB {
-		unmodified := react(l)
-		result := len(unmodified)
-		fmt.Printf("Result is %d\n", result)
-	} else {
-		shortest := len(l)
-		for c := 'A'; c <= 'Z'; c++ {
-			second := c + 32
-			modified := strings.Replace(l, string([]rune{second}), "", -1)
-			modified = strings.Replace(modified, string([]rune{c}), "", -1)
-			candidate := len(react(modified))
-			if candidate < shortest {
-				shortest = candidate
-			}
-		}
-		fmt.Printf("Result is %d\n", shortest)
-	}
+	fmt.Printf("AoC 2018, Day5, Part1 solution is: %d \n", part1(input))
+	fmt.Printf("AoC 2018, Day5, Part2 solution is: %d \n", part2(input))
 }
 
-func react(l string) string {
-	current := l
+func part1(input string) int {
+	unmodified := react(input)
+	return len(unmodified)
+}
+
+func part2(input string) int {
+	shortest := len(input)
+	for c := 'A'; c <= 'Z'; c++ {
+		second := c + 32
+		modified := strings.Replace(input, string([]rune{second}), "", -1)
+		modified = strings.Replace(modified, string([]rune{c}), "", -1)
+		candidate := len(react(modified))
+		if candidate < shortest {
+			shortest = candidate
+		}
+	}
+	return shortest
+}
+
+func react(input string) string {
+	current := input
 	for {
 		transformed := false
 		prev := ' '
