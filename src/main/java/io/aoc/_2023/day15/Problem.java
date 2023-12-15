@@ -45,10 +45,7 @@ public class Problem {
 
                 } else {
                     // check if there is already a lens in the box with the same label.
-                    var someLabel = deque.stream()
-                            .map(Marker::label)
-                            .filter(label -> label.equals(instructionLabel))
-                            .findAny();
+                    var someLabel = getSomeLabel(deque, instructionLabel);
 
                     // If the label is present, replace the focalLength.
                     if (someLabel.isPresent()) {
@@ -63,23 +60,24 @@ public class Problem {
             }
 
             if (instruction.operation() == '-') {
-                if (box.containsKey(hash)) {
-                    var deque = box.get(hash);
-                    var newDeque = deque.stream()
-                            .filter(marker -> !marker.label().equals(instructionLabel))
-                            .collect(Collectors.toCollection(ArrayDeque::new));
-
-                    if (newDeque.isEmpty()) {
-                        box.remove(hash);
-                    } else {
-                        box.put(hash, newDeque);
-                    }
-
-                }
+                box.computeIfPresent(hash, (key, deque) -> removeLabel(deque, instructionLabel));
             }
 
         }
-        return caulculateReuslt(box);
+        return calculateResult(box);
+    }
+
+    private static Optional<String> getSomeLabel(Deque<Marker> deque, String instructionLabel) {
+        return deque.stream()
+                .map(Marker::label)
+                .filter(label -> label.equals(instructionLabel))
+                .findAny();
+    }
+
+    private static ArrayDeque<Marker> removeLabel(Deque<Marker> deque, String instructionLabel) {
+        return deque.stream()
+                .filter(marker -> !marker.label().equals(instructionLabel))
+                .collect(Collectors.toCollection(ArrayDeque::new));
     }
 
     private Deque<Marker> replaceLabel(Deque<Marker> deque, Marker marker) {
@@ -112,12 +110,18 @@ public class Problem {
         return new Instruction(label, '-', -1);
     }
 
-    private int caulculateReuslt(HashMap<Integer, Deque<Marker>> box) {
+    private int calculateResult(HashMap<Integer, Deque<Marker>> box) {
         var ans = 0;
         for (var entry : box.entrySet()) {
             var boxIndex = entry.getKey() + 1;
+            var deque = entry.getValue();
+
+            if (deque.isEmpty()) {
+                continue;
+            }
+
             var i = 1;
-            for (var marker : entry.getValue()) {
+            for (var marker : deque) {
                 ans += boxIndex * i * marker.focalLength();
                 i++;
             }
