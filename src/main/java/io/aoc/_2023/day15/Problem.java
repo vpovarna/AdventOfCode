@@ -117,6 +117,8 @@ public class Problem {
             var boxIndex = entry.getKey() + 1;
             var deque = entry.getValue();
 
+            // After clean-up ('-' operation), some dequeues might end up empty.
+            // Ignore them here or remove them in the cleanup phase
             if (deque.isEmpty()) {
                 continue;
             }
