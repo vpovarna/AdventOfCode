@@ -5,13 +5,7 @@ import io.aoc.utils.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.function.IntPredicate;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
+import java.util.*;
 
 public class Problem {
     private static final Logger logger = LoggerFactory.getLogger(Problem.class);
@@ -23,132 +17,151 @@ public class Problem {
         logger.info("Aoc2020, Day16 Problem, Part2: {}", problem.part2(input));
     }
 
-    private int part1(String input) {
-        var problemInput = parse(input);
-        var tickets = problemInput.tickets();
-        var rules = problemInput.rules();
+    public int part1(String input) {
+        final InputData inputData = getInput(input);
 
-        return tickets
-                .stream()
-                .map(ticketList -> getInvalidTickets(ticketList, rules))
-                .mapToInt(t -> t.stream()
-                        .mapToInt(x -> x)
-                        .sum())
-                .sum();
-    }
+        int failure = 0;
+        for (List<Integer> ticket : inputData.tickets()) {
+            for (int value : ticket) {
+                boolean valid = false;
+                for (Field field : inputData.fields()) {
+                    if (field.isValid(value)) {
+                        valid = true;
+                        break;
+                    }
+                }
 
-
-    private long part2(String input) {
-        var problemInput = parse(input);
-        var tickets = problemInput.tickets();
-        var rules = new HashSet<>(problemInput.rules());
-
-        // keep valid tickets
-        var validTickets = tickets.stream()
-                .filter(ticketList -> allMatch(ticketList, rules))
-                .collect(Collectors.toList());
-        // System.out.println(validTickets);
-
-        // Extract columns
-        var columns = new HashSet<Integer>(IntStream.range(0, rules.size()).boxed().toList());
-
-//        while (!columns.isEmpty()) {
-            for (var column : columns) {
-                var valuesInColumn = tickets.stream()
-                        .map(ticketList -> ticketList.get(column))
-                        .toList();
-
-                var matchedRules = getMatchRules(rules, valuesInColumn);
-                System.out.println(matchedRules);
-                System.out.println("-----------------------");
-
-//                var valuesInColumn = (from ticket in tickets select ticket[column]).ToArray();
-
-//                var candidates = FieldCandidates(fields, valuesInColumn);
-//                if (candidates.Length == 1)
-//                {
-//                    var field = candidates.Single();
-//                    fields.Remove(field);
-//                    columns.Remove(column);
-//                    if (field.name.StartsWith("departure"))
-//                    {
-//                        res *= valuesInColumn.First();
-//                    }
-//
-//                    break;
-//                }
+                if (!valid) {
+                    failure += value;
+                }
             }
-//        }
-        System.out.println(columns);
-        var res = 1L;
-
-
-        return res;
-    }
-
-    private List<Integer> getInvalidTickets(List<Integer> tickets, List<Rule> rules) {
-        return tickets.stream()
-                .filter(ticket -> rules.stream().noneMatch(rule -> rule.isValid().test(ticket)))
-                .toList();
-    }
-
-    private Boolean allMatch(List<Integer> tickets, HashSet<Rule> rules) {
-        return tickets.stream()
-                .allMatch(ticket -> rules.stream().anyMatch(rule -> rule.isValid().test(ticket)));
-    }
-
-    private List<String> getMatchRules(HashSet<Rule> rules, List<Integer> tickets) {
-        var arr = new ArrayList<String>();
-
-        for (var ticket : tickets) {
-            var matchingRules = rules.stream()
-                    .filter(rule -> rule.isValid().test(ticket))
-                    .map(Rule::name)
-                    .toList();
-            arr.addAll(matchingRules);
         }
 
-        return arr;
+        return failure;
     }
 
-    private ProblemInput parse(String input) {
-        var parts = input.split(Constants.EMPTY_LINE);
-        var fields = getFields(parts[0]);
-        var tickets = getNearbyTickets(parts[2]);
+    public long part2(String input) {
+        var inputData = getInput(input);
+        var tickets = inputData.tickets();
+        tickets = getValidTickets(tickets, inputData);
 
-        return new ProblemInput(fields, tickets);
+        final HashMap<String, Set<Integer>> candidates = new HashMap<>();
+        final List<String> positions = new ArrayList<>();
+        final Set<Integer> all = new HashSet<>();
+        for (int i = 0; i < tickets.get(0).size(); i++) {
+            positions.add(null);
+            all.add(i);
+        }
+
+        for (Field field : inputData.fields()) {
+            candidates.put(field.name(), new HashSet<>(all));
+        }
+
+        while (positions.stream().anyMatch(Objects::isNull)) {
+            for (Field field : inputData.fields()) {
+                final Set<Integer> pos = candidates.get(field.name());
+                for (List<Integer> ticket : tickets) {
+                    for (int i = 0; i < ticket.size(); i++) {
+                        if (!field.isValid(ticket.get(i))) {
+                            pos.remove(i);
+                            if (pos.size() == 1) {
+                                final int finalPos = new ArrayList<>(pos).get(0);
+                                positions.set(finalPos, field.name());
+                                for (var candidate : candidates.entrySet()) {
+                                    if (candidate.getValue() == pos) {
+                                        continue;
+                                    }
+
+                                    candidate.getValue().remove(finalPos);
+                                    if (candidate.getValue().size() == 1) {
+                                        positions.set(new ArrayList<>(candidate.getValue()).get(0), candidate.getKey());
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        return calculateTotal(tickets, positions);
     }
 
-    private List<Rule> getFields(String input) {
-        var lines = input.split(Constants.EOL);
-        return Arrays.stream(lines)
-                .map(line -> {
-                    String[] parts = line.split(": ");
-                    var ruleName = parts[0];
-                    var rowRanges = parts[1].split(" or ");
-                    var firstRule = rowRanges[0].split("-");
-                    var secondRule = rowRanges[1].split("-");
-                    IntPredicate isValid = ticketNumber ->
-                            (Integer.parseInt(firstRule[0]) <= ticketNumber && ticketNumber <= Integer.parseInt(firstRule[1])) ||
-                                    (Integer.parseInt(secondRule[0]) <= ticketNumber && ticketNumber <= Integer.parseInt(secondRule[1]));
+    private long calculateTotal(List<List<Integer>> tickets, List<String> positions) {
+        var ticket = tickets.get(0);
+        var total = 1L;
+        for (int i = 0; i < ticket.size(); i++) {
+            if (positions.get(i).startsWith("departure")) {
+                total *= ticket.get(i);
+            }
+        }
 
-                    return new Rule(ruleName, isValid);
-                })
-                .toList();
+        return total;
     }
 
-    private List<List<Integer>> getNearbyTickets(String input) {
-        return Arrays.stream(input.split(Constants.EOL))
-                .skip(1)
-                .map(line -> Arrays.stream(line.split(","))
-                        .map(Integer::parseInt)
-                        .collect(Collectors.toList()))
-                .collect(Collectors.toList());
+    private static List<List<Integer>> getValidTickets(List<List<Integer>> tickets, InputData inputData) {
+        final List<List<Integer>> tickets2 = new ArrayList<>();
+        for (List<Integer> ticket : tickets) {
+            boolean allValid = true;
+            for (int value : ticket) {
+                boolean valid = false;
+                for (Field field : inputData.fields()) {
+                    if (field.isValid(value)) {
+                        valid = true;
+                        break;
+                    }
+                }
+
+                if (!valid) {
+                    allValid = false;
+                    break;
+                }
+            }
+
+            if (allValid) {
+                tickets2.add(ticket);
+            }
+        }
+        return tickets2;
     }
+
+    private InputData getInput(String inputFile) {
+        final List<String> input = Arrays.stream(inputFile.split(Constants.EOL)).toList();
+        final List<Field> fields = new ArrayList<>();
+        final List<List<Integer>> tickets = new ArrayList<>();
+        int i = 0;
+        for (; ; i++) {
+            final String line = input.get(i);
+            if (line.isEmpty()) {
+                break;
+            }
+
+            final String[] parts = line.split("(: )|-|( or )");
+            fields.add(new Field(parts[0], Integer.parseInt(parts[1]), Integer.parseInt(parts[2]), Integer.parseInt(parts[3]), Integer.parseInt(parts[4])));
+        }
+
+        i += 2;
+        for (; i < input.size(); i++) {
+            final String line = input.get(i);
+            if (line.isEmpty()) {
+                i++;
+                continue;
+            }
+
+            tickets.add(Arrays.stream(line.split(",")).map(Integer::parseInt).toList());
+        }
+
+        return new InputData(fields, tickets);
+    }
+
 }
 
-record ProblemInput(List<Rule> rules, List<List<Integer>> tickets) {
+record InputData(List<Field> fields, List<List<Integer>> tickets) {
 }
 
-record Rule(String name, IntPredicate isValid) {
+record Field(String name, int lower1, int upper1, int lower2, int upper2) {
+
+    public boolean isValid(int value) {
+        return (value >= this.lower1 && value <= this.upper1) || (value >= this.lower2 && value <= this.upper2);
+    }
 }
