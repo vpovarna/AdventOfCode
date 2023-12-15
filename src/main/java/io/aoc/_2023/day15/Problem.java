@@ -67,6 +67,31 @@ public class Problem {
         return calculateResult(box);
     }
 
+    private Instruction getInstruction(String str) {
+        if (str.contains("=")) {
+            var i = str.indexOf("=");
+            var label = str.substring(0, i);
+            var focalPoint = Integer.parseInt(str.substring(i + 1));
+            return new Instruction(label, '=', focalPoint);
+        }
+        var i = str.indexOf("-");
+        var label = str.substring(0, i);
+        return new Instruction(label, '-', -1);
+    }
+
+    private int getStringHash(String str) {
+        var ans = 0;
+        for (var c : str.toCharArray()) {
+            ans = hash(ans + c);
+        }
+        return ans;
+    }
+
+    private int hash(int c) {
+        return (c * 17) % 256;
+    }
+
+
     private static Optional<String> getSomeLabel(Deque<Marker> deque, String instructionLabel) {
         return deque.stream()
                 .map(Marker::label)
@@ -84,30 +109,6 @@ public class Problem {
         return deque.stream()
                 .map(m -> (m.label().equals(marker.label()) ? new Marker(m.label(), marker.focalLength()) : m))
                 .collect(Collectors.toCollection(ArrayDeque::new));
-    }
-
-    private int getStringHash(String str) {
-        var ans = 0;
-        for (var c : str.toCharArray()) {
-            ans = hash(ans + c);
-        }
-        return ans;
-    }
-
-    private int hash(int c) {
-        return (c * 17) % 256;
-    }
-
-    private Instruction getInstruction(String str) {
-        if (str.contains("=")) {
-            var i = str.indexOf("=");
-            var label = str.substring(0, i);
-            var focalPoint = Integer.parseInt(str.substring(i + 1));
-            return new Instruction(label, '=', focalPoint);
-        }
-        var i = str.indexOf("-");
-        var label = str.substring(0, i);
-        return new Instruction(label, '-', -1);
     }
 
     private int calculateResult(HashMap<Integer, Deque<Marker>> box) {
