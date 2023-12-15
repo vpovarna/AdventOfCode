@@ -9,6 +9,7 @@ import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.IntPredicate;
+import java.util.stream.Collectors;
 
 public class Problem {
     private static final Logger logger = LoggerFactory.getLogger(Problem.class);
@@ -22,11 +23,17 @@ public class Problem {
 
     private int part1(String input) {
         var problemInput = parse(input);
-        return problemInput.tickets().stream()
-                .filter(ticket -> !isValidTicket(ticket, problemInput.rules()))
-                .mapToInt(x -> x)
+        var tickets = problemInput.tickets();
+        var rules = problemInput.rules();
+
+        return tickets
+                .stream()
+                .map(ticketList -> getInvalidTickets(ticketList, rules))
+                .mapToInt(t -> t.stream()
+                        .mapToInt(x -> x)
+                        .sum())
                 .sum();
-   }
+    }
 
 
     private int part2(String input) {
@@ -34,15 +41,23 @@ public class Problem {
         var tickets = problemInput.tickets();
         var rules = problemInput.rules();
 
-//        // keep valid tickets
-//        tickets.stream()
-//                .map(ticket -> )
+        // keep valid tickets
+        tickets.stream()
+                .filter(ticketList -> !areAllTicketsValid(ticketList, rules).isEmpty())
+                .forEach(System.out::println);
         return 0;
     }
 
-    private boolean isValidTicket(Integer ticket, List<Rule> rules) {
-        return rules.stream()
-                .anyMatch(rule -> rule.isValid().test(ticket));
+    private List<Integer> getInvalidTickets(List<Integer> tickets, List<Rule> rules) {
+        return tickets.stream()
+                .filter(ticket -> rules.stream().noneMatch(rule -> rule.isValid().test(ticket)))
+                .toList();
+    }
+
+    private List<Integer> areAllTicketsValid(List<Integer> tickets, List<Rule> rules) {
+        return tickets.stream()
+                .filter(ticket -> rules.stream().allMatch(rule -> rule.isValid().test(ticket)))
+                .toList();
     }
 
     private ProblemInput parse(String input) {
@@ -71,15 +86,18 @@ public class Problem {
                 .toList();
     }
 
-    private List<Integer> getNearbyTickets(String input) {
+    private List<List<Integer>> getNearbyTickets(String input) {
         return Arrays.stream(input.split(Constants.EOL))
                 .skip(1)
-                .flatMap(line -> Arrays.stream(line.split(","))
-                        .map(Integer::parseInt))
-                .toList();
+                .map(line -> Arrays.stream(line.split(","))
+                        .map(Integer::parseInt)
+                        .collect(Collectors.toList()))
+                .collect(Collectors.toList());
     }
 }
 
-record ProblemInput(List<Rule> rules, List<Integer> tickets) {}
+record ProblemInput(List<Rule> rules, List<List<Integer>> tickets) {
+}
 
-record Rule(String name, IntPredicate isValid) {}
+record Rule(String name, IntPredicate isValid) {
+}
