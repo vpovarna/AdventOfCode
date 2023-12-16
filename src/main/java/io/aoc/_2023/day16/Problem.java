@@ -25,7 +25,29 @@ public class Problem {
     }
 
     private int part2(String input) {
-        return -1;
+        var grid = getGrid(input);
+        var lines = input.split(Constants.EOL);
+
+        var maxX = lines[0].length() - 1;
+        var maxY = lines.length - 1;
+
+        var max = 0;
+
+        for (var x = 0; x <= maxX; x++) {
+            grid.values().forEach(Tile::reset);
+            max = Math.max(calculateEnergized(grid, new Point(x, 0), Direction.D), max);
+            grid.values().forEach(Tile::reset);
+            max = Math.max(calculateEnergized(grid, new Point(x, maxY), Direction.U), max);
+        }
+
+        for (var y = 0; y <= maxY; y++) {
+            grid.values().forEach(Tile::reset);
+            max = Math.max(calculateEnergized(grid, new Point(0, y), Direction.R), max);
+            grid.values().forEach(Tile::reset);
+            max = Math.max(calculateEnergized(grid, new Point(maxX, y), Direction.L), max);
+        }
+
+        return max;
     }
 
 
@@ -133,6 +155,10 @@ class Tile {
         this.isEnergized = false;
         this.type = null;
         this.position = null;
+    }
+    public void reset() {
+        this.isEnergized = false;
+        this.beams.clear();
     }
 }
 
