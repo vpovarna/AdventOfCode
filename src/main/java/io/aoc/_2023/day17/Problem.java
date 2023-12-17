@@ -21,15 +21,16 @@ public class Problem {
 
     private int part1(String input) {
         var grid = getGrid(input);
-        return run(grid);
+        return run(grid, 1, 3);
     }
 
     private int part2(String input) {
-        return 0;
+        var grid = getGrid(input);
+        return run(grid, 4, 10);
     }
 
     // Dijkstra's Algorithm (https://www.programiz.com/dsa/dijkstra-algorithm)
-    private int run(List<List<Integer>> grid) {
+    private int run(List<List<Integer>> grid, int minStraight, int maxStraight) {
         var queue = new PriorityQueue<>(Comparator.comparing(Player::hl));
         queue.add(new Player(0, new Stats(new Point(0, 0), new Direction(0, 0), 0)));
 
@@ -39,6 +40,7 @@ public class Problem {
             var player = queue.poll();
             var playerStats = player.stats();
             var currentPoint = playerStats.point();
+            var count = playerStats.count();
 
             var currentDirection = playerStats.direction();
 
@@ -47,7 +49,7 @@ public class Problem {
             var n = grid.getFirst().size();
 
             // if we are at the destination
-            if (currentPoint.r() == m - 1 && currentPoint.c() == n - 1) {
+            if (currentPoint.r() == m - 1 && currentPoint.c() == n - 1 && count >= minStraight) {
                 return player.hl();
             }
 
@@ -58,31 +60,32 @@ public class Problem {
 
             seen.add(playerStats);
 
-            // && (currentDirection.r() != 0 || currentDirection.c() != 0) might not count
-            if (playerStats.n() < 3 && (currentDirection.r() != 0 || currentDirection.c() != 0)) {
+            if (count < maxStraight) {
                 // we can continue going in the same direction
                 var nr = currentPoint.r() + currentDirection.r();
                 var nc = currentPoint.c() + currentDirection.c();
 
                 // check if the current player point is out of the greed.
                 if ((0 <= nr && nr < m) && (0 <= nc && nc < m)) {
-                    var stats = new Stats(new Point(nr, nc), currentDirection, playerStats.n() + 1);
+                    var stats = new Stats(new Point(nr, nc), currentDirection, playerStats.count() + 1);
                     queue.add(new Player(player.hl() + grid.get(nr).get(nc), stats));
                 }
             }
 
-            // Check all directions
-            for (var direction : getAllPossibleDirections()) {
-                if ((direction.r() != currentDirection.r() || direction.c() != currentDirection.c()) && (direction.r() != -currentDirection.r() || direction.c() != -currentDirection.c())) {
-                    var nr = currentPoint.r() + direction.r();
-                    var nc = currentPoint.c() + direction.c();
+            if (count >= minStraight || (currentDirection.r() == 0 && currentDirection.c() == 0)) {
+                // Check all directions
+                for (var direction : getAllPossibleDirections()) {
+                    if ((direction.r() != currentDirection.r() || direction.c() != currentDirection.c()) && (direction.r() != -currentDirection.r() || direction.c() != -currentDirection.c())) {
+                        var nr = currentPoint.r() + direction.r();
+                        var nc = currentPoint.c() + direction.c();
 
-                    if ((nr >= 0 && nr < m) && (nc >= 0 && nc < m)) {
-                        var stats = new Stats(new Point(nr, nc), direction, 1);
-                        var heatLoss = player.hl() + grid.get(nr).get(nc);
-                        queue.add(new Player(heatLoss, stats));
+                        if ((nr >= 0 && nr < m) && (nc >= 0 && nc < m)) {
+                            var stats = new Stats(new Point(nr, nc), direction, 1);
+                            var heatLoss = player.hl() + grid.get(nr).get(nc);
+                            queue.add(new Player(heatLoss, stats));
+                        }
+
                     }
-
                 }
             }
 
@@ -111,7 +114,7 @@ record Direction(int r, int c) {
 record Point(int r, int c) {
 }
 
-record Stats(Point point, Direction direction, int n) {
+record Stats(Point point, Direction direction, int count) {
 }
 
 record Player(int hl, Stats stats) {
