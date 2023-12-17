@@ -16,6 +16,10 @@ type point struct {
 	y int
 }
 
+func (p *point) distance() float64 {
+	return math.Abs(float64(p.x)) + math.Abs(float64(p.y))
+}
+
 func main() {
 	flag.Parse()
 	bytes, err := os.ReadFile(*inputFile)
@@ -26,21 +30,24 @@ func main() {
 
 	input := string(bytes)
 	fmt.Printf("AoC 2016, Day1, Part1 solution is: %f \n", part1(&input))
-	fmt.Printf("AoC 2016, Day1, Part2 solution is: %d \n", part2(&input))
+	fmt.Printf("AoC 2016, Day1, Part2 solution is: %f \n", part2(&input))
 }
 
 func part1(input *string) float64 {
 	lines := strings.Split(*input, ", ")
-	return gridWalk(lines)
+	return gridWalk(lines, false)
 }
 
-func part2(input *string) int {
-	return 0
+func part2(input *string) float64 {
+	lines := strings.Split(*input, ", ")
+	return gridWalk(lines, true)
 }
 
-func gridWalk(instructions []string) float64 {
-	startingPoint := point{0, 0}
-	orientation := 0
+func gridWalk(instructions []string, uniqueDirections bool) float64 {
+	currentPoint := point{0, 0}
+	direction := 0
+
+	visited := make(map[point]bool)
 
 	for _, instruction := range instructions {
 		turn := instruction[0]
@@ -51,35 +58,37 @@ func gridWalk(instructions []string) float64 {
 			fmt.Printf("Unable to transform step: %s\n", rawSteps)
 		}
 
-		// Update orientation based on the direction: R / L
-		if orientation < 0 {
-			orientation += 4
-		}
-
 		if turn == 'R' {
-			orientation = (orientation + 1) % 4
+			direction = (direction + 1) % 4
 		} else {
-			orientation = (orientation - 1) % 4
+			direction = (direction + 3) % 4
 		}
 
-		// rewrite this
 		for i := 0; i < steps; i++ {
-			switch orientation {
+			switch direction {
 			case 0:
-				startingPoint.y += 1
+				currentPoint.y += 1
 				break
 			case 1:
-				startingPoint.x += 1
+				currentPoint.x += 1
 				break
 			case 2:
-				startingPoint.y -= 1
+				currentPoint.y -= 1
 				break
 			default:
-				startingPoint.x -= 1
+				currentPoint.x -= 1
 				break
+			}
+
+			if uniqueDirections {
+				if visited[currentPoint] {
+					return currentPoint.distance()
+				}
+
+				visited[currentPoint] = true
 			}
 		}
 	}
 
-	return math.Abs(float64(startingPoint.x)) + math.Abs(float64(startingPoint.y))
+	return currentPoint.distance()
 }
