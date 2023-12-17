@@ -31,7 +31,7 @@ public class Problem {
     // Dijkstra's Algorithm (https://www.programiz.com/dsa/dijkstra-algorithm)
     private int run(List<List<Integer>> grid) {
         var queue = new PriorityQueue<>(Comparator.comparing(Player::hl));
-        queue.add(new Player(0, new Stats(new Point(0, 0), 0, 0, 0)));
+        queue.add(new Player(0, new Stats(new Point(0, 0), new Direction(0, 0), 0)));
 
         var seen = new HashSet<Stats>();
 
@@ -40,37 +40,47 @@ public class Problem {
             var playerStats = player.stats();
             var currentPoint = playerStats.point();
 
+            var currentDirection = playerStats.direction();
+
+            // grid size
+            var m = grid.size();
+            var n = grid.getFirst().size();
+
             // if we are at the destination
-            if (currentPoint.r() == grid.size() - 1 && currentPoint.c() == grid.getFirst().size() - 1) {
+            if (currentPoint.r() == m - 1 && currentPoint.c() == n - 1) {
                 return player.hl();
             }
 
-            // we don't want to add heatList since, in a loop, heatLost is always incremented
+            // we don't want to add heatList since, in a loop, heatLost is always incremented, so we can't prevent loops
             if (seen.contains(playerStats)) {
                 continue;
             }
 
             seen.add(playerStats);
 
-            if (playerStats.n() < 3 && (playerStats.dr() != 0 || playerStats.dc() != 0)) {
+            // && (currentDirection.r() != 0 || currentDirection.c() != 0) might not count
+            if (playerStats.n() < 3 && (currentDirection.r() != 0 || currentDirection.c() != 0)) {
                 // we can continue going in the same direction
-                var nr = currentPoint.r() + playerStats.dr();
-                var nc = currentPoint.c() + playerStats.dc();
+                var nr = currentPoint.r() + currentDirection.r();
+                var nc = currentPoint.c() + currentDirection.c();
+
                 // check if the current player point is out of the greed.
-                if ((nr >= 0 && nr < grid.size()) && (nc >= 0 && nc < grid.size())) {
-                    queue.add(new Player(player.hl() + grid.get(nr).get(nc), new Stats(new Point(nr, nc), playerStats.dr(), playerStats.dc(), playerStats.n() + 1)));
+                if ((0 <= nr && nr < m) && (0 <= nc && nc < m)) {
+                    var stats = new Stats(new Point(nr, nc), currentDirection, playerStats.n() + 1);
+                    queue.add(new Player(player.hl() + grid.get(nr).get(nc), stats));
                 }
             }
 
             // Check all directions
-            for (var neighbour : getNeighbours()) {
-                var ndr = neighbour.r();
-                var ndc = neighbour.c();
-                if ((ndr != playerStats.dr() || ndc != playerStats.dc()) && (ndr != -playerStats.dr() || ndc != -playerStats.dc())) {
-                    var nr = currentPoint.r() + ndr;
-                    var nc = currentPoint.c() + ndc;
-                    if ((nr >= 0 && nr < grid.size()) && (nc >= 0 && nc < grid.size())) {
-                        queue.add(new Player(player.hl() + grid.get(nr).get(nc), new Stats(new Point(nr, nc), ndr, ndc, 1)));
+            for (var direction : getAllPossibleDirections()) {
+                if ((direction.r() != currentDirection.r() || direction.c() != currentDirection.c()) && (direction.r() != -currentDirection.r() || direction.c() != -currentDirection.c())) {
+                    var nr = currentPoint.r() + direction.r();
+                    var nc = currentPoint.c() + direction.c();
+
+                    if ((nr >= 0 && nr < m) && (nc >= 0 && nc < m)) {
+                        var stats = new Stats(new Point(nr, nc), direction, 1);
+                        var heatLoss = player.hl() + grid.get(nr).get(nc);
+                        queue.add(new Player(heatLoss, stats));
                     }
 
                 }
@@ -80,8 +90,8 @@ public class Problem {
         return -1;
     }
 
-    private List<Point> getNeighbours() {
-        return List.of(new Point(0, 1), new Point(1, 0), new Point(0, -1), new Point(-1, 0));
+    private List<Direction> getAllPossibleDirections() {
+        return List.of(new Direction(0, 1), new Direction(1, 0), new Direction(0, -1), new Direction(-1, 0));
     }
 
     private List<List<Integer>> getGrid(String input) {
@@ -95,10 +105,13 @@ public class Problem {
     }
 }
 
+record Direction(int r, int c) {
+}
+
 record Point(int r, int c) {
 }
 
-record Stats(Point point, int dr, int dc, int n) {
+record Stats(Point point, Direction direction, int n) {
 }
 
 record Player(int hl, Stats stats) {
