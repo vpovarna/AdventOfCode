@@ -19,7 +19,7 @@ public class Problem {
     }
 
     // https://www.youtube.com/watch?v=bGWK76_e-LM&t=359s&ab_channel=HyperNeutrino
-    private int part1(String input) {
+    private long part1(String input) {
         var lines = input.split(Constants.EOL);
         var startingPoint = new Point(0, 0);
         var boundaryPoints = 0;
@@ -44,17 +44,10 @@ public class Problem {
         points.addFirst(lastPoint);
         points.addLast(startPoint);
 
-        var area = 0;
+        long area = getArea(points);
+        long interior = getInterior(area, boundaryPoints);
 
-        // Shoelace formula = https://en.wikipedia.org/wiki/Shoelace_formula
-        for (var i = 1; i < points.size() - 1; i++) {
-            area += points.get(i).r() * (points.get((i - 1)).c() - points.get((i + 1)).c());
-        }
-        area = Math.abs(area)/2;
-
-        // Pick's theorem = https://en.wikipedia.org/wiki/Pick%27s_theorem
-        var i = area - (boundaryPoints / 2) + 1;
-        return i + boundaryPoints;
+        return interior + boundaryPoints;
     }
 
     private long part2(String input) {
@@ -82,11 +75,25 @@ public class Problem {
             points.add(new Point(currentPoint.r() + directionPoints.r() * n, currentPoint.c() + directionPoints.c() * n));
         }
 
+        // prevent out of bound errors
         var lastPoint = points.getLast();
         var startPoint = points.getFirst();
         points.addFirst(lastPoint);
         points.addLast(startPoint);
 
+        long area = getArea(points);
+        long interior = getInterior(area, boundaryPoints);
+
+        return interior + boundaryPoints;
+    }
+
+    // Pick's theorem = https://en.wikipedia.org/wiki/Pick%27s_theorem
+    private static long getInterior(long area, int boundaryPoints) {
+        long interior = area - (boundaryPoints / 2) + 1;
+        return interior;
+    }
+
+    private static long getArea(LinkedList<Point> points) {
         long area = 0L;
 
         // Shoelace formula = https://en.wikipedia.org/wiki/Shoelace_formula
@@ -94,12 +101,8 @@ public class Problem {
             area += (long) points.get(i).r() * (points.get((i - 1)).c() - points.get((i + 1)).c());
         }
         area = Math.abs(area)/2;
-
-        // Pick's theorem = https://en.wikipedia.org/wiki/Pick%27s_theorem
-        long i = area - (boundaryPoints / 2) + 1;
-        return i + boundaryPoints;
+        return area;
     }
-
 
     private Point getDirections(String direction) {
         var directions = Map.of(
