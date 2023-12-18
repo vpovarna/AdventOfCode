@@ -57,19 +57,47 @@ public class Problem {
         return i + boundaryPoints;
     }
 
-    private int part2(String input) {
+    private long part2(String input) {
         var lines = input.split(Constants.EOL);
-//        var startingPoint = new Point(0, 0);
-//        var boundaryPoints = 0;
-//
-//        var points = new LinkedList<Point>();
-//        points.add(startingPoint);
+        var startingPoint = new Point(0, 0);
+        var boundaryPoints = 0;
+
+        var points = new LinkedList<Point>();
+        points.add(startingPoint);
 
         for (var line : lines) {
             var parts = line.split(Constants.EMPTY_STRING);
-            var direction = parts[0];
+            var rowColors = parts[2];
+            var color = rowColors.substring(2, rowColors.length()-1);
+
+            var directionIndex = Character.getNumericValue(color.charAt(color.length() -1));
+            var direction = "RDLU".charAt(directionIndex);
+            var directionPoints = getDirections(String.valueOf(direction));
+
+            var value = rowColors.substring(2, rowColors.length()-2);
+            int n = Integer.valueOf(value, 16);
+            boundaryPoints += n;
+            var currentPoint = points.getLast();
+
+            points.add(new Point(currentPoint.r() + directionPoints.r() * n, currentPoint.c() + directionPoints.c() * n));
         }
-        return 0;
+
+        var lastPoint = points.getLast();
+        var startPoint = points.getFirst();
+        points.addFirst(lastPoint);
+        points.addLast(startPoint);
+
+        long area = 0L;
+
+        // Shoelace formula = https://en.wikipedia.org/wiki/Shoelace_formula
+        for (var i = 1; i < points.size() - 1; i++) {
+            area += (long) points.get(i).r() * (points.get((i - 1)).c() - points.get((i + 1)).c());
+        }
+        area = Math.abs(area)/2;
+
+        // Pick's theorem = https://en.wikipedia.org/wiki/Pick%27s_theorem
+        long i = area - (boundaryPoints / 2) + 1;
+        return i + boundaryPoints;
     }
 
 
