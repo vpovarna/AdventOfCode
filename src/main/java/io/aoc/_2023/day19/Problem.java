@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.regex.Pattern;
+import java.util.stream.IntStream;
 
 public class Problem {
 
@@ -17,7 +18,7 @@ public class Problem {
         var problem = new Problem();
         var input = Utils.readInputFileAsString(2023, 19, "input.txt");
         logger.info("Aoc2020, Day19 Problem, Part1: {}", problem.part1(input));
-//        logger.info("Aoc2020, Day19 Problem, Part2: {}", problem.part2(input));
+        logger.info("Aoc2020, Day19 Problem, Part2: {}", problem.part2(input));
     }
 
     private long part1(String input) {
@@ -76,101 +77,100 @@ public class Problem {
         return sum;
     }
 
-//    public long part2(String input) {
-//        return 0l;
-////        var inputParts = input.trim().split(Constants.EMPTY_LINE);
-////        var sum = 0L;
-////        var workflows = parseWorkflows(inputParts[0]);
-////        var workflowQueue = new HashMap<String, ArrayList<HashMap<Character, Range<Integer>>>>();
-////        var acceptedRanges = new ArrayList<HashMap<Character, Range<Integer>>>();
-////        boolean hasUnprocessedRanges = true;
-////
-////        for (var workflow: workflows.values()) {
-////            workflowQueue.put(workflow.name(), new ArrayList<>());
-////        }
-////
-////        var partRanges = new ArrayList<HashMap<Character, Range<Integer>>>() {{
-////            add(new HashMap<>() {{
-////                put('x', Range.closed(1, 4000));
-////                put('m', Range.closed(1, 4000));
-////                put('a', Range.closed(1, 4000));
-////                put('s', Range.closed(1, 4000));
-////            }});
-////        }};
-////
-////        workflowQueue.get("in").addAll(partRanges);
-////
-////        while (hasUnprocessedRanges) {
-////            hasUnprocessedRanges = false;
-////
-////            for (var work: workflowQueue.entrySet()) {
-////                if (work.getValue().isEmpty()) {
-////                    continue;
-////                }
-////
-////                hasUnprocessedRanges = true;
-////
-////                var workflow = workflows.get(work.getKey());
-////                var ranges = work.getValue();
-////                workflowQueue.put(work.getKey(), new ArrayList<>());
-////
-////                nextRange:
-////                for (var range: ranges) {
-////                    for (var condition: workflow.conditions()) {
-////                        var registerRange = range.get(condition.register());
-////                        Range<Integer> conditionRange;
-////                        Range<Integer> remainingRange;
-////
-////                        if (condition.operation() == '<') {
-////                            conditionRange = Range.closed(1, condition.value() - 1);
-////                            remainingRange = Range.closed(condition.value(), 4000);
-////                        } else {
-////                            conditionRange = Range.closed(condition.value() + 1, 4000);
-////                            remainingRange = Range.closed(1, condition.value());
-////                        }
-////
-////                        if (!registerRange.isConnected(conditionRange)) {
-////                            continue;
-////                        }
-////
-////                        var overlapping = registerRange.intersection(conditionRange);
-////                        var newRange = new HashMap<>(range);
-////                        newRange.put(condition.register(), overlapping);
-////
-////                        if (condition.targetWorkflow().equals("A")) {
-////                            acceptedRanges.add(newRange);
-////                        } else if (!condition.targetWorkflow().equals("R")) {
-////                            workflowQueue.get(condition.targetWorkflow()).add(newRange);
-////                        }
-////
-////                        if (remainingRange.isConnected(registerRange)) {
-////                            range.put(condition.register(), remainingRange.intersection(registerRange));
-////                        } else {
-////                            continue nextRange;
-////                        }
-////                    }
-////
-////                    if (workflow.targetWorkflow().equals("A")) {
-////                        acceptedRanges.add(range);
-////                    } else if (!workflow.targetWorkflow().equals("R")) {
-////                        workflowQueue.get(workflow.targetWorkflow()).add(range);
-////                    }
-////                }
-////            }
-////        }
-////
-////        for (var acceptedRange: acceptedRanges) {
-////            var rangeProduct = 1L;
-////            for (var es: acceptedRange.entrySet()) {
-////                var range = es.getValue();
-////                rangeProduct *= range.upperEndpoint() - range.lowerEndpoint() + 1;
-////            }
-////
-////            sum += rangeProduct;
-////        }
-////
-////        return sum;
-//    }
+    public long part2(String input) {
+        var inputParts = input.trim().split(Constants.EMPTY_LINE);
+        var sum = 0L;
+        var workflows = parseWorkflows(inputParts[0]);
+        var workflowQueue = new HashMap<String, ArrayList<Map<Character, Range<Integer>>>>();
+        var acceptedRanges = new ArrayList<Map<Character, Range<Integer>>>();
+        boolean hasUnprocessedRanges = true;
+
+        for (var workflow: workflows.values()) {
+            workflowQueue.put(workflow.name(), new ArrayList<>());
+        }
+
+        var partRanges = new ArrayList<HashMap<Character, Range<Integer>>>() {{
+            add(new HashMap<>() {{
+                put('x', Range.closed(1, 4000));
+                put('m', Range.closed(1, 4000));
+                put('a', Range.closed(1, 4000));
+                put('s', Range.closed(1, 4000));
+            }});
+        }};
+
+        workflowQueue.get("in").addAll(partRanges);
+
+        while (hasUnprocessedRanges) {
+            hasUnprocessedRanges = false;
+
+            for (var work: workflowQueue.entrySet()) {
+                if (work.getValue().isEmpty()) {
+                    continue;
+                }
+
+                hasUnprocessedRanges = true;
+
+                var workflow = workflows.get(work.getKey());
+                var ranges = work.getValue();
+                workflowQueue.put(work.getKey(), new ArrayList<>());
+
+                nextRange:
+                for (var range: ranges) {
+                    for (var condition: workflow.conditions()) {
+                        var registerRange = range.get(condition.register());
+                        Range<Integer> conditionRange;
+                        Range<Integer> remainingRange;
+
+                        if (condition.operation() == '<') {
+                            conditionRange = Range.closed(1, condition.value() - 1);
+                            remainingRange = Range.closed(condition.value(), 4000);
+                        } else {
+                            conditionRange = Range.closed(condition.value() + 1, 4000);
+                            remainingRange = Range.closed(1, condition.value());
+                        }
+
+                        if (!registerRange.isConnected(conditionRange)) {
+                            continue;
+                        }
+
+                        var overlapping = registerRange.intersection(conditionRange);
+                        var newRange = new HashMap<>(range);
+                        newRange.put(condition.register(), overlapping);
+
+                        if (condition.targetWorkflow().equals("A")) {
+                            acceptedRanges.add(newRange);
+                        } else if (!condition.targetWorkflow().equals("R")) {
+                            workflowQueue.get(condition.targetWorkflow()).add(newRange);
+                        }
+
+                        if (remainingRange.isConnected(registerRange)) {
+                            range.put(condition.register(), remainingRange.intersection(registerRange));
+                        } else {
+                            continue nextRange;
+                        }
+                    }
+
+                    if (workflow.targetWorkflow().equals("A")) {
+                        acceptedRanges.add(range);
+                    } else if (!workflow.targetWorkflow().equals("R")) {
+                        workflowQueue.get(workflow.targetWorkflow()).add(range);
+                    }
+                }
+            }
+        }
+
+        for (var acceptedRange: acceptedRanges) {
+            var rangeProduct = 1L;
+            for (var es: acceptedRange.entrySet()) {
+                var range = es.getValue();
+                rangeProduct *= range.upperEndpoint() - range.lowerEndpoint() + 1;
+            }
+
+            sum += rangeProduct;
+        }
+
+        return sum;
+    }
 
     private HashMap<String, Workflow> parseWorkflows(String input) {
         var workflows = new HashMap<String, Workflow>();
@@ -179,12 +179,10 @@ public class Problem {
         for (var workflowLine : workflowsLines) {
             var conditions = new LinkedList<Condition>();
             var workflowHeaders = matchGroups("(\\w+)\\{(.*)\\}", workflowLine);
-            assert workflowHeaders != null;
             var workflowParts = workflowHeaders.get(1).split(Constants.COMMA);
 
             for (var i = 0; i < workflowParts.length - 1; i++) {
                 var c = matchGroups("(\\w+)([^\\w])([0-9]+):(\\w+)", workflowParts[i]);
-                assert c != null;
                 conditions.add(new Condition(c.get(0).charAt(0), c.get(1).charAt(0), Integer.parseInt(c.get(2)), c.get(3)));
             }
 
@@ -221,7 +219,7 @@ public class Problem {
         var l = new ArrayList<String>();
 
         if (!m.find()) {
-            return null;
+            return Collections.emptyList();
         }
 
         for (var i = 1; i <= m.groupCount(); i++) {
