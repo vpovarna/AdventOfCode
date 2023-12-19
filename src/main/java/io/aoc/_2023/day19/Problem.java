@@ -89,15 +89,16 @@ public class Problem {
             workflowQueue.put(workflow.name(), new ArrayList<>());
         }
 
-        var partRanges = new ArrayList<HashMap<Character, Range<Integer>>>() {{
-            add(new HashMap<>() {{
-                put('x', Range.closed(1, 4000));
-                put('m', Range.closed(1, 4000));
-                put('a', Range.closed(1, 4000));
-                put('s', Range.closed(1, 4000));
-            }});
-        }};
+        var partRanges = new ArrayList<HashMap<Character, Range<Integer>>>();
 
+        var initMap = new HashMap<Character, Range<Integer>>();
+        for (var c: List.of('x', 'm', 'a', 's')) {
+            initMap.put('x', Range.closed(1, 4000));
+            initMap.put('m', Range.closed(1, 4000));
+            initMap.put('a', Range.closed(1, 4000));
+            initMap.put('s', Range.closed(1, 4000));
+        }
+        partRanges.add(initMap);
         workflowQueue.get("in").addAll(partRanges);
 
         while (hasUnprocessedRanges) {
