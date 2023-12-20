@@ -59,7 +59,7 @@ func part2(input *string) int {
 	lines := strings.Split(*input, "\n")
 	ans := 0
 
-	for i := 0; i < len(lines)-2; i += 2 {
+	for i := 0; i < len(lines)-2; i += 3 {
 		l1 := strings.TrimSpace(lines[i])
 		l2 := strings.TrimSpace(lines[i+1])
 		l3 := strings.TrimSpace(lines[i+2])
@@ -73,6 +73,7 @@ func part2(input *string) int {
 			b, _ := strconv.Atoi(p2[j])
 			c, _ := strconv.Atoi(p3[j])
 			triangle := triangle{a, b, c}
+
 			if triangle.isValid() {
 				ans += 1
 			}
