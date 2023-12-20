@@ -9,6 +9,7 @@ import java.util.*;
 
 public class Problem {
     private static final Logger logger = LoggerFactory.getLogger(Problem.class);
+    public static final String BROADCASTER = "broadcaster";
 
     public static void main(String[] args) {
         var problem = new Problem();
@@ -30,7 +31,7 @@ public class Problem {
 
             var queue = new ArrayDeque<BroadcastTarget>();
             for (var target : broadcastTargets) {
-                queue.add(new BroadcastTarget("broadcaster", target, Pulse.Lo));
+                queue.add(new BroadcastTarget(BROADCASTER, target, Pulse.Lo));
             }
 
             while (!queue.isEmpty()) {
@@ -51,26 +52,12 @@ public class Problem {
 
                 var module = modules.get(target);
 
-                if (module.type == '%') {
-                    if (pulse == Pulse.Lo) {
-                        module.memoryOff = !module.memoryOff;
-                        var outgoing = (!module.memoryOff) ? Pulse.Hi : Pulse.Lo;
-                        for (var output : module.outputs) {
-                            queue.add(new BroadcastTarget(module.name, output, outgoing));
-                        }
-                    }
-                } else {
-                    module.memory.put(origin, pulse);
-                    var allHi = module.memory.values().stream().allMatch(v -> v == Pulse.Hi);
-                    var outgoing = (allHi) ? Pulse.Lo : Pulse.Hi;
-                    for (var output : module.outputs) {
-                        queue.add(new BroadcastTarget(module.name, output, outgoing));
-                    }
-                }
+                updateQueue(module, pulse, queue, origin);
             }
         }
         return lo * hi;
     }
+
 
     private long part2(String input) {
         var dayInput = parseInput(input);
@@ -88,7 +75,7 @@ public class Problem {
             presses += 1;
             var queue = new ArrayDeque<BroadcastTarget>();
             for (var target : broadcastTargets) {
-                queue.add(new BroadcastTarget("broadcaster", target, Pulse.Lo));
+                queue.add(new BroadcastTarget(BROADCASTER, target, Pulse.Lo));
             }
 
             while (!queue.isEmpty()) {
@@ -123,23 +110,27 @@ public class Problem {
                     return x;
                 }
 
-                if (module.type == '%') {
-                    if (pulse == Pulse.Lo) {
-                        module.memoryOff = !module.memoryOff;
-                        var outgoing = (!module.memoryOff) ? Pulse.Hi : Pulse.Lo;
-                        for (var output : module.outputs) {
-                            queue.add(new BroadcastTarget(module.name, output, outgoing));
-                        }
-                    }
-                } else {
-                    module.memory.put(origin, pulse);
-                    var allHi = module.memory.values().stream().allMatch(v -> v == Pulse.Hi);
-                    var outgoing = (allHi) ? Pulse.Lo : Pulse.Hi;
-                    for (var output : module.outputs) {
-                        queue.add(new BroadcastTarget(module.name, output, outgoing));
-                    }
-                }
+                updateQueue(module, pulse, queue, origin);
 
+            }
+        }
+    }
+
+    private static void updateQueue(Module module, Pulse pulse, ArrayDeque<BroadcastTarget> queue, String origin) {
+        if (module.type == '%') {
+            if (pulse == Pulse.Lo) {
+                module.memoryOff = !module.memoryOff;
+                var outgoing = (!module.memoryOff) ? Pulse.Hi : Pulse.Lo;
+                for (var output : module.outputs) {
+                    queue.add(new BroadcastTarget(module.name, output, outgoing));
+                }
+            }
+        } else {
+            module.memory.put(origin, pulse);
+            var allHi = module.memory.values().stream().allMatch(v -> v == Pulse.Hi);
+            var outgoing = (allHi) ? Pulse.Lo : Pulse.Hi;
+            for (var output : module.outputs) {
+                queue.add(new BroadcastTarget(module.name, output, outgoing));
             }
         }
     }
@@ -180,7 +171,7 @@ public class Problem {
         for (var line : lines) {
             var parts = line.trim().split(" -> ");
             var outputs = Arrays.stream(parts[1].split(", ")).toList();
-            if (Objects.equals(parts[0], "broadcaster")) {
+            if (Objects.equals(parts[0], BROADCASTER)) {
                 broadcasterTargets = outputs;
                 continue;
             }
