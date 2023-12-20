@@ -63,7 +63,7 @@ public class Problem {
                     module.memory.put(origin, pulse);
                     var allHi = module.memory.values().stream().allMatch(v -> v == Pulse.Hi);
                     var outgoing = (allHi) ? Pulse.Lo : Pulse.Hi;
-                    for ( var output : module.outputs) {
+                    for (var output : module.outputs) {
                         queue.add(new BroadcastTarget(module.name, output, outgoing));
                     }
                 }
@@ -72,8 +72,104 @@ public class Problem {
         return lo * hi;
     }
 
-    private int part2(String input) {
-        return 0;
+    private long part2(String input) {
+        var dayInput = parseInput(input);
+        var broadcastTargets = dayInput.broadcastTargets();
+        var modules = dayInput.modules();
+
+        var feeds = getFeeds(modules);
+        var feed = feeds.get(0);
+        var seen = getSeen(modules, feed);
+
+        var cycleLengths = new HashMap<String, Integer>();
+        var presses = 0;
+
+        while (true) {
+            presses += 1;
+            var queue = new ArrayDeque<BroadcastTarget>();
+            for (var target : broadcastTargets) {
+                queue.add(new BroadcastTarget("broadcaster", target, Pulse.Lo));
+            }
+
+            while (!queue.isEmpty()) {
+                var broadcastTarget = queue.pop();
+                var origin = broadcastTarget.name();
+                var target = broadcastTarget.target();
+                var pulse = broadcastTarget.pulse();
+
+                if (!modules.containsKey(target)) {
+                    continue;
+                }
+
+                var module = modules.get(target);
+
+                if (module.name.equals(feed) && pulse == Pulse.Hi) {
+                    var newValue = seen.get(origin);
+                    seen.put(origin, newValue + 1);
+
+                    if (!cycleLengths.containsKey(origin)) {
+                        cycleLengths.put(origin, presses);
+                    } else {
+                        assert presses == seen.get(origin) * cycleLengths.get(origin);
+                    }
+                }
+
+                var allSeen = seen.values().stream().allMatch(v -> v > 0);
+                if (allSeen) {
+                    var x = 1L;
+                    for (var cycleLength : cycleLengths.values()) {
+                        x = x * cycleLength / gcd(x, cycleLength);
+                    }
+                    return x;
+                }
+
+                if (module.type == '%') {
+                    if (pulse == Pulse.Lo) {
+                        module.memoryOff = !module.memoryOff;
+                        var outgoing = (!module.memoryOff) ? Pulse.Hi : Pulse.Lo;
+                        for (var output : module.outputs) {
+                            queue.add(new BroadcastTarget(module.name, output, outgoing));
+                        }
+                    }
+                } else {
+                    module.memory.put(origin, pulse);
+                    var allHi = module.memory.values().stream().allMatch(v -> v == Pulse.Hi);
+                    var outgoing = (allHi) ? Pulse.Lo : Pulse.Hi;
+                    for (var output : module.outputs) {
+                        queue.add(new BroadcastTarget(module.name, output, outgoing));
+                    }
+                }
+
+            }
+        }
+    }
+
+    long gcd(long a, long b) {
+        return b == 0 ? a : gcd(b, a % b);
+    }
+
+    private static ArrayList<String> getFeeds(Map<String, Module> modules) {
+        var feeds = new ArrayList<String>();
+        for (var kv : modules.entrySet()) {
+            var module = kv.getValue();
+            var name = kv.getKey();
+            if (module.outputs.contains("rx")) {
+                feeds.add(name);
+            }
+        }
+        return feeds;
+    }
+
+    private static HashMap<String, Integer> getSeen(Map<String, Module> modules, String feed) {
+        var seen = new HashMap<String, Integer>();
+        for (var kv : modules.entrySet()) {
+            var module = kv.getValue();
+            var name = kv.getKey();
+            if (module.outputs.contains(feed)) {
+                seen.put(name, 0);
+            }
+        }
+        return seen;
     }
 
     private Input parseInput(String input) {
