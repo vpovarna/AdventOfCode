@@ -10,7 +10,6 @@ import java.util.List;
 
 public class Problem {
     private static final Logger logger = LoggerFactory.getLogger(Problem.class);
-    public static final String BROADCASTER = "broadcaster";
 
     public static void main(String[] args) {
         var problem = new Problem();
