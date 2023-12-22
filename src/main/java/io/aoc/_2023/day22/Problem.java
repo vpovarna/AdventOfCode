@@ -14,12 +14,12 @@ public class Problem {
     public static void main(String[] args) {
         var problem = new Problem();
         var input = Utils.readInputFileAsString(2023, 22, "input.txt");
-        logger.info("Aoc2020, Day20 Problem, Part1: {}", problem.part1(input));
-        logger.info("Aoc2020, Day20 Problem, Part2: {}", problem.part2(input));
+        logger.info("Aoc2020, Day20 Problem, Part1: {}", problem.run(input, false));
+        logger.info("Aoc2020, Day20 Problem, Part2: {}", problem.run(input, true));
     }
 
-    private int part1(String input) {
-        List<List<Integer>> bricks = parseInput(input);
+    private int run(String input, boolean part2) {
+        var bricks = parseInput(input);
         for (var i = 0; i < bricks.size(); i++) {
             var maxZ = 1;
             var brick = bricks.get(i);
@@ -55,6 +55,9 @@ public class Problem {
             }
         }
 
+        if (part2) {
+          return getTotalIfWeDesignate(sortedBricks, keySupportValuesDict, valueSupportKeyDict);
+        }
         return getTotal(sortedBricks, keySupportValuesDict, valueSupportKeyDict);
     }
 
@@ -65,7 +68,7 @@ public class Problem {
     }
 
     // Functional approach?
-    private static int getTotal(List<List<Integer>> sortedBricks, HashMap<Integer, Set<Integer>> keySupportValuesDict, HashMap<Integer, Set<Integer>> valueSupportKeyDict) {
+    private int getTotal(List<List<Integer>> sortedBricks, Map<Integer, Set<Integer>> keySupportValuesDict, Map<Integer, Set<Integer>> valueSupportKeyDict) {
         var total = 0;
         for (var i = 0; i < sortedBricks.size(); i++) {
             var bricksConnections = keySupportValuesDict.getOrDefault(i, new HashSet<>());
@@ -78,7 +81,78 @@ public class Problem {
         return total;
     }
 
+    private static int getTotalIfWeDesignate(List<List<Integer>> sortedBricks, Map<Integer, Set<Integer>> keySupportValuesDict, Map<Integer, Set<Integer>> valueSupportKeyDict) {
+        var total = 0;
+        for (var i = 0; i < sortedBricks.size(); i++) {
+            var queue = new ArrayDeque<Integer>();
+            for (var j : keySupportValuesDict.getOrDefault(i, new HashSet<>())) {
+                if (valueSupportKeyDict.getOrDefault(j, new HashSet<>()).size() == 1) {
+                    queue.add(j);
+                }
+            }
+
+            // populate set
+            var falling = new HashSet<>(queue);
+            falling.add(i);
+
+            while (!queue.isEmpty()) {
+                var j = queue.pop();
+                var blocks = keySupportValuesDict.getOrDefault(j, new HashSet<>());
+                blocks.removeAll(falling);
+                for (var k : blocks){
+                    var values = valueSupportKeyDict.get(k);
+                    var isSupported = falling.containsAll(values);
+                    if (isSupported) {
+                        queue.add(k);
+                        falling.add(k);
+                    }
+                }
+            }
+
+            total += falling.size() -1;
+        }
+        return total;
+    }
+
+
     private int part2(String input) {
+        var bricks = parseInput(input);
+        for (var i = 0; i < bricks.size(); i++) {
+            var maxZ = 1;
+            var brick = bricks.get(i);
+            for (var check : bricks.subList(0, i)) {
+                if (overlaps(check, brick)) {
+                    maxZ = Math.max(maxZ, check.get(5) + 1);
+                }
+            }
+            var prevBrickValue = brick.get(5);
+            brick.set(5, prevBrickValue - (brick.get(2) - maxZ));
+            brick.set(2, maxZ);
+        }
+
+        // we need to sort the bricks since they can get out of order
+        var sortedBricks = sortBricks(bricks);
+
+        // two dictionaries from index to a set
+        var keySupportValuesDict = new HashMap<Integer, Set<Integer>>();
+
+        // reversed dictionary
+        var valueSupportKeyDict = new HashMap<Integer, Set<Integer>>();
+
+        for (var j = 0; j < sortedBricks.size(); j++) {
+            var upperBrick = sortedBricks.get(j);
+            var sublist = sortedBricks.subList(0, j);
+            for (var i = 0; i < sublist.size(); i++) {
+                var lowerBrick = sublist.get(i);
+
+                if (overlaps(upperBrick, lowerBrick) && (upperBrick.get(2) == lowerBrick.get(5) + 1)) {
+                    updateDictionary(keySupportValuesDict, i, j);
+                    updateDictionary(valueSupportKeyDict, j, i);
+                }
+            }
+        }
+
+        getTotalIfWeDesignate(sortedBricks, keySupportValuesDict, valueSupportKeyDict);
         return 0;
     }
 
