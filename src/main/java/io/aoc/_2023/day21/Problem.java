@@ -18,16 +18,64 @@ public class Problem {
         logger.info("Aoc2020, Day20 Problem, Part2: {}", problem.part2(input));
     }
 
-    private int part1(String input) {
+    private long part1(String input) {
         var grid = parseInput(input);
         var startingPoint = getStartingPoint(grid);
+        return fill(startingPoint, grid, 64);
+    }
 
+    // Solution based on: https://www.youtube.com/watch?v=9UOMZSL0JTg&t=364&ab_channel=HyperNeutrino
+    private long part2(String input) {
+        var lines = input.split(Constants.EOL);
+        var grid = parseInput(input);
+        var startingPoint = getStartingPoint(grid);
+        var sr = startingPoint.x();
+        var sc = startingPoint.y();
+
+        var size = lines.length;
+        var steps = 26501365;
+
+        assert lines.length == lines[0].length();
+        assert steps % size == size / 2;
+
+        var gridWidth = steps / size - 1;
+
+        var odd = (long) Math.pow((((gridWidth / 2) * 2) + 1), 2);
+        var even = (long) Math.pow(((gridWidth + 1) / 2 * 2), 2);
+
+        var oddPoints = fill(new Point(sr, sc), grid,size * 2 + 1);
+        var evenPoints = fill(new Point(sr, sc), grid,size * 2);
+
+        var cornerT = fill(new Point(size - 1, sc), grid, size - 1);
+        var cornerR = fill(new Point(sr, 0), grid, size - 1);
+        var cornerB = fill(new Point(0, sc), grid, size - 1);
+        var cornerL = fill(new Point(sr, size - 1), grid, size - 1);
+
+        var smallTr = fill(new Point(size - 1, 0), grid, size / 2 - 1);
+        var smallTl = fill(new Point(size - 1, size - 1), grid, size / 2 - 1);
+        var smallBr = fill(new Point(0, 0), grid, size / 2 - 1);
+        var smallBl = fill(new Point(0, size - 1), grid, size / 2 - 1);
+
+        var largeTr = fill(new Point(size - 1, 0), grid,size * 3 / 2 - 1);
+        var largeTl = fill(new Point(size - 1, size - 1), grid, size * 3 / 2 - 1);
+        var largeBr = fill(new Point(0, 0), grid, size * 3 / 2 - 1);
+        var largeBl = fill(new Point(0, size - 1), grid, size * 3 / 2 - 1);
+
+        return  odd * oddPoints +
+                even * evenPoints +
+                cornerT + cornerR + cornerB + cornerL +
+                (gridWidth + 1) * (smallTr + smallTl + smallBr + smallBl) +
+                gridWidth * (largeTr + largeTl + largeBr + largeBl);
+    }
+
+
+    private long fill(Point startingPoint, Map<Point, Character> grid, int count) {
         var ans = new HashSet<Point>();
         var seen = new HashSet<Point>();
         var queue = new ArrayDeque<Step>();
 
         seen.add(startingPoint);
-        queue.add(new Step(startingPoint, 64));
+        queue.add(new Step(startingPoint, count));
 
         while (!queue.isEmpty()) {
             var currentStep = queue.pop();
@@ -48,15 +96,11 @@ public class Problem {
                 }
 
                 seen.add(pointNeighbours);
-                queue.add(new Step(pointNeighbours, steps -1));
+                queue.add(new Step(pointNeighbours, steps - 1));
             }
         }
 
         return ans.size();
-    }
-
-    private int part2(String input) {
-        return 0;
     }
 
     private Map<Point, Character> parseInput(String string) {
@@ -80,6 +124,7 @@ public class Problem {
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("Invalid input. No starting point found!"));
     }
+
 }
 
 record Step(Point point, int count) {
