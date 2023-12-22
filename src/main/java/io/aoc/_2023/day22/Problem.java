@@ -86,6 +86,7 @@ public class Problem {
         return Math.max(a.get(0), b.get(0)) <= Math.min(a.get(3), b.get(3)) && Math.max(a.get(1), b.get(1)) <= Math.min(a.get(4), b.get(4));
     }
 
+    // Replace the array with a mutable class?
     private List<List<Integer>> parseInput(String input) {
         var lines = input.split(Constants.EOL);
 
