@@ -24,14 +24,14 @@ func main() {
 }
 
 func part1(input *string) int {
-	return decompressLie(*input)
+	return decompressLength(*input, false)
 }
 
 func part2(input *string) int {
-	return -2
+	return decompressLength(*input, true)
 }
 
-func decompressLie(in string) int {
+func decompressLength(in string, part2 bool) int {
 	var decompressedLen int
 	for i := 0; i < len(in); {
 		switch in[i] {
@@ -48,6 +48,10 @@ func decompressLie(in string) int {
 
 			// crete the pattern and add repeated length to the final count
 			patternLength := len(substring)
+			if part2 {
+				patternLength = decompressLength(substring, true)
+			}
+
 			decompressedLen += patternLength * repeat
 
 			i = closedIndex + 1 + len(substring)
