@@ -19,10 +19,20 @@ func main() {
 	input := string(bytes)
 
 	fmt.Printf("AoC 2016, Day6, Part1 solution is: %d \n", part1(&input))
-	fmt.Printf("AoC 2016, Day6, Part2 solution is: %d \n", part2(&input))
+	fmt.Printf("AoC 2016, Day6, Part2 solution is: \n%s \n", part2(&input))
 }
 
 func part1(input *string) int {
+	count, _ := twoFA(input)
+	return count
+}
+
+func part2(input *string) string {
+	_, finalState := twoFA(input)
+	return finalState
+}
+
+func twoFA(input *string) (int, string) {
 	width := 50
 	tall := 6
 
@@ -76,18 +86,19 @@ func part1(input *string) int {
 	}
 
 	var count int
+	var finalState string
 	for _, row := range grid {
 		for _, v := range row {
 			if v {
 				count += 1
+				finalState += "#"
+			} else {
+				finalState += " "
 			}
 		}
+		finalState += "\n"
 	}
-	return count
-}
-
-func part2(input *string) int {
-	return -1
+	return count, finalState
 }
 
 func printGrid(grid [][]bool, tall int, wide int) {
