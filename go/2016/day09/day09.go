@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"strings"
 )
 
 var inputFile = flag.String("inputFile", "input.txt", "Relative file path to use as input")
@@ -23,9 +24,38 @@ func main() {
 }
 
 func part1(input *string) int {
-	return -1
+	return decompressLie(*input)
 }
 
 func part2(input *string) int {
 	return -2
+}
+
+func decompressLie(in string) int {
+	var decompressedLen int
+	for i := 0; i < len(in); {
+		switch in[i] {
+		case '(':
+			// find index of closing paren, then find total length of substring
+			relativeCloseIndex := strings.Index(in[i:], ")")
+			closedIndex := relativeCloseIndex + i
+
+			var copyLen, repeat int
+			// Extract values
+			fmt.Sscanf(in[i:closedIndex+1], "(%dx%d)", &copyLen, &repeat)
+
+			substring := in[closedIndex+1 : closedIndex+1+copyLen]
+
+			// crete the pattern and add repeated length to the final count
+			patternLength := len(substring)
+			decompressedLen += patternLength * repeat
+
+			i = closedIndex + 1 + len(substring)
+		default:
+			decompressedLen++
+			i++
+		}
+	}
+
+	return decompressedLen
 }
