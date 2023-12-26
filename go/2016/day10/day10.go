@@ -1,6 +1,7 @@
 package main
 
 import (
+	"aoc/utils"
 	"flag"
 	"fmt"
 	"os"
@@ -42,7 +43,9 @@ func balanceBots(input *string, part1CompareValues []int) int {
 		for _, r := range rules {
 			if len(botsMap[r.botID]) == 2 {
 				sort.Ints(botsMap[r.botID])
-				low, high := botsMap[r.botID][0], botsMap[r.botID][1]
+				low := utils.Min(botsMap[r.botID][0], botsMap[r.botID][1])
+				high := utils.Max(botsMap[r.botID][0], botsMap[r.botID][1])
+
 				// part 1 return value
 				if len(part1CompareValues) != 0 &&
 					low == part1CompareValues[0] && high == part1CompareValues[1] {
