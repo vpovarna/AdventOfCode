@@ -49,19 +49,28 @@ func part1(input *string) int {
 		panic("unable to convert the input to int")
 	}
 
-	return bfs(favNumber, Coordinate{31, 39})
+	return bfs(favNumber, Coordinate{31, 39}, 1)
 }
 
 func part2(input *string) int {
-	return -1
+	favNumber, err := strconv.Atoi(*input)
+
+	if err != nil {
+		panic("unable to convert the input to int")
+	}
+
+	return bfs(favNumber, Coordinate{31, 39}, 2)
 }
 
-func bfs(favNumber int, destination Coordinate) int {
+func bfs(favNumber int, destination Coordinate, part int) int {
 	// Queue represented as a slice of arrays
 	queue := []Point{{Coordinate{1, 1}, 0}} // starting point (Coordinate(x, y), distance)
 
 	// HashSet to track the visited coordinates
 	visited := map[Coordinate]bool{}
+
+	// part2
+	uniqueVisited50 := map[Coordinate]bool{}
 
 	for len(queue) > 0 {
 		front := queue[0]
@@ -69,12 +78,22 @@ func bfs(favNumber int, destination Coordinate) int {
 		currentPoint := front.coordinate
 		currentDist := front.distance
 
-		if currentPoint.x == destination.x && currentPoint.y == destination.y {
+		if part == 1 && currentPoint.x == destination.x && currentPoint.y == destination.y {
 			return currentDist
 		}
 
 		// if not visited
-		if !visited[Coordinate{currentPoint.x, currentPoint.y}] {
+		if !visited[currentPoint] {
+
+			// part2 condition
+			if currentDist <= 50 {
+				uniqueVisited50[currentPoint] = true
+			}
+
+			if part == 2 && currentDist > 50 {
+				break
+			}
+
 			for _, nextCoordinate := range currentPoint.neighbors() {
 				if nextCoordinate.x >= 0 && nextCoordinate.y >= 0 {
 					if isOpen(nextCoordinate.x, nextCoordinate.y, favNumber) {
@@ -89,7 +108,7 @@ func bfs(favNumber int, destination Coordinate) int {
 		queue = queue[1:]
 	}
 
-	return -1
+	return len(uniqueVisited50)
 }
 
 func isOpen(x, y int, favNumber int) bool {
