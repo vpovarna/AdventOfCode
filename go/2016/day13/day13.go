@@ -9,11 +9,23 @@ import (
 
 var inputFile = flag.String("inputFile", "input.txt", "Relative file path to use as input")
 
-var dirs = [][2]int{
-	{-1, 0},
-	{1, 0},
-	{0, -1},
-	{0, 1},
+type Coordinate struct {
+	x int
+	y int
+}
+
+type Point struct {
+	coordinate Coordinate
+	distance   int
+}
+
+func (c *Coordinate) neighbors() [4]Coordinate {
+	return [4]Coordinate{
+		{c.x + 1, c.y},
+		{c.x - 1, c.y},
+		{c.x, c.y - 1},
+		{c.x, c.y + 1},
+	}
 }
 
 func main() {
@@ -37,42 +49,41 @@ func part1(input *string) int {
 		panic("unable to convert the input to int")
 	}
 
-	return bfs(favNumber, [2]int{31, 39})
+	return bfs(favNumber, Coordinate{31, 39})
 }
 
 func part2(input *string) int {
 	return -1
 }
 
-func bfs(favNumber int, destination [2]int) int {
+func bfs(favNumber int, destination Coordinate) int {
 	// Queue represented as a slice of arrays
-	queue := [][3]int{[3]int{1, 1, 0}} // starting pint (x, y, distance)
+	queue := []Point{{Coordinate{1, 1}, 0}} // starting point (Coordinate(x, y), distance)
 
 	// HashSet to track the visited coordinates
-	visited := map[[2]int]bool{}
+	visited := map[Coordinate]bool{}
 
 	for len(queue) > 0 {
 		front := queue[0]
 
-		currentX, currentY := front[0], front[1]
-		currentDist := front[2]
+		currentPoint := front.coordinate
+		currentDist := front.distance
 
-		if currentX == destination[0] && currentY == destination[1] {
+		if currentPoint.x == destination.x && currentPoint.y == destination.y {
 			return currentDist
 		}
 
 		// if not visited
-		if !visited[[2]int{currentX, currentY}] {
-			for _, dir := range dirs {
-				nextX, nextY := dir[0]+currentX, dir[1]+currentY
-				if nextX >= 0 && nextY >= 0 {
-					if isOpen(nextX, nextY, favNumber) {
-						queue = append(queue, [3]int{nextX, nextY, currentDist + 1})
+		if !visited[Coordinate{currentPoint.x, currentPoint.y}] {
+			for _, nextCoordinate := range currentPoint.neighbors() {
+				if nextCoordinate.x >= 0 && nextCoordinate.y >= 0 {
+					if isOpen(nextCoordinate.x, nextCoordinate.y, favNumber) {
+						queue = append(queue, Point{nextCoordinate, currentDist + 1})
 					}
 				}
 			}
 		}
-		visited[[2]int{currentX, currentY}] = true
+		visited[currentPoint] = true
 
 		// Update queue
 		queue = queue[1:]
@@ -85,10 +96,12 @@ func isOpen(x, y int, favNumber int) bool {
 	sum := int64((x*x + 3*x + 2*x*y + y + y*y) + favNumber)
 	binaryRep := strconv.FormatInt(sum, 2)
 
-	occurrence := map[rune]int{}
+	counter := 0
 
 	for _, c := range binaryRep {
-		occurrence[c] += 1
+		if c == '1' {
+			counter += 1
+		}
 	}
-	return occurrence[rune('1')]%2 == 0
+	return counter%2 == 0
 }
