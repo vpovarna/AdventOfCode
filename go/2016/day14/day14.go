@@ -28,28 +28,28 @@ func part1(input *string) int {
 }
 
 func part2(input *string) int {
-	return run(input, 2)
-
+	return -1
 }
 
 func run(input *string, part int) int {
-	cycle := 1
+	// cycle := 1
 
-	if part == 2 {
-		cycle = 2016 + 1
-	}
+	// if part == 2 {
+	// 	cycle = 2016 + 1
+	// }
 
 	keys := []string{}
-	hashes := map[string]string{}
 
 	index := 0
 	for {
 		var h string
-		h = hash(input, index, cycle, hashes)
+		str := fmt.Sprintf("%s%d", *input, index)
+		h = hash(str)
 
 		if c := hasTriples(h); c != "" {
 			for i := index + 1; i <= index+1000; i++ {
-				h = hash(input, i, cycle, hashes)
+				str = fmt.Sprintf("%s%d", *input, i)
+				h = hash(str)
 
 				if hasFiveInARow(c, h) {
 					keys = append(keys, h)
@@ -65,20 +65,8 @@ func run(input *string, part int) int {
 	}
 }
 
-func hash(input *string, i int, cycles int, hashes map[string]string) string {
-	hashed := fmt.Sprintf("%s%d", *input, i)
-
-	if hashes[hashed] != "" {
-		return hashes[hashed]
-	}
-
-	for i := 0; i < cycles; i++ {
-		// tmpHash := hashed
-		hashed = fmt.Sprintf("%x", md5.Sum([]byte(hashed)))
-		// hashes[tmpHash] = hashed
-	}
-	return hashed
-
+func hash(str string) string {
+	return fmt.Sprintf("%x", md5.Sum([]byte(str)))
 }
 
 func hasTriples(str string) string {
