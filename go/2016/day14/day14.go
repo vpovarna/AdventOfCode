@@ -9,6 +9,8 @@ import (
 
 var inputFile = flag.String("inputFile", "input.txt", "Relative file path to use as input")
 
+type FuncStringString func(string) string
+
 func main() {
 	flag.Parse()
 	bytes, err := os.ReadFile(*inputFile)
@@ -44,12 +46,16 @@ func run(input *string, part int) int {
 	for {
 		var h string
 		str := fmt.Sprintf("%s%d", *input, index)
-		h = hash(str)
+		memHash := memorized(func(str string) string {
+			return fmt.Sprintf("%x", md5.Sum([]byte(str)))
+		})
+
+		h = memHash(str)
 
 		if c := hasTriples(h); c != "" {
 			for i := index + 1; i <= index+1000; i++ {
 				str = fmt.Sprintf("%s%d", *input, i)
-				h = hash(str)
+				h = memHash(str)
 
 				if hasFiveInARow(c, h) {
 					keys = append(keys, h)
@@ -65,8 +71,18 @@ func run(input *string, part int) int {
 	}
 }
 
-func hash(str string) string {
-	return fmt.Sprintf("%x", md5.Sum([]byte(str)))
+func memorized(fn FuncStringString) FuncStringString {
+	cache := make(map[string]string)
+
+	return func(str string) string {
+		if val, found := cache[str]; found {
+			fmt.Println("Read from cache")
+			return val
+		}
+		tmp := fn(str)
+		cache[str] = tmp
+		return tmp
+	}
 }
 
 func hasTriples(str string) string {
