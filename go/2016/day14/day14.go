@@ -9,10 +9,6 @@ import (
 
 var inputFile = flag.String("inputFile", "input.txt", "Relative file path to use as input")
 
-type FuncStringString func(string, int) string
-
-var memHash map[string]string = map[string]string{}
-
 func main() {
 	flag.Parse()
 	bytes, err := os.ReadFile(*inputFile)
