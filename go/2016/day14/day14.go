@@ -9,7 +9,9 @@ import (
 
 var inputFile = flag.String("inputFile", "input.txt", "Relative file path to use as input")
 
-type FuncStringString func(string) string
+type FuncStringString func(string, int) string
+
+var memHash map[string]string = map[string]string{}
 
 func main() {
 	flag.Parse()
@@ -26,36 +28,25 @@ func main() {
 }
 
 func part1(input *string) int {
-	return run(input, 1)
+	return run(generateHash, input, 1)
 }
 
 func part2(input *string) int {
-	return -1
+
+	return run(generateStretchedHash, input, 2)
 }
 
-func run(input *string, part int) int {
-	// cycle := 1
-
-	// if part == 2 {
-	// 	cycle = 2016 + 1
-	// }
-
+func run(fn func(string, int) string, input *string, part int) int {
 	keys := []string{}
+	hashes := make(map[int]string)
 
 	index := 0
 	for {
-		var h string
-		str := fmt.Sprintf("%s%d", *input, index)
-		memHash := memorized(func(str string) string {
-			return fmt.Sprintf("%x", md5.Sum([]byte(str)))
-		})
-
-		h = memHash(str)
+		h := lookupAndGenerate(fn, *input, index, hashes)
 
 		if c := hasTriples(h); c != "" {
 			for i := index + 1; i <= index+1000; i++ {
-				str = fmt.Sprintf("%s%d", *input, i)
-				h = memHash(str)
+				h = lookupAndGenerate(fn, *input, i, hashes)
 
 				if hasFiveInARow(c, h) {
 					keys = append(keys, h)
@@ -71,18 +62,29 @@ func run(input *string, part int) int {
 	}
 }
 
-func memorized(fn FuncStringString) FuncStringString {
-	cache := make(map[string]string)
-
-	return func(str string) string {
-		if val, found := cache[str]; found {
-			fmt.Println("Read from cache")
-			return val
-		}
-		tmp := fn(str)
-		cache[str] = tmp
-		return tmp
+func lookupAndGenerate(fn func(string, int) string, salt string, index int, hashes map[int]string) string {
+	if _, contains := hashes[index]; !contains {
+		hash := fn(salt, index)
+		hashes[index] = hash
+		return hash
 	}
+
+	return hashes[index]
+}
+
+func generateHash(str string, index int) string {
+	return fmt.Sprintf("%x", md5.Sum([]byte(fmt.Sprintf("%s%d", str, index))))
+}
+
+func generateStretchedHash(str string, index int) string {
+	hashed := fmt.Sprintf("%s%d", str, index)
+	i := 0
+	for i < 2017 {
+		hashed = fmt.Sprintf("%x", md5.Sum([]byte(hashed)))
+		i++
+	}
+
+	return hashed
 }
 
 func hasTriples(str string) string {
