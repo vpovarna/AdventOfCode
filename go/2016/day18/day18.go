@@ -19,8 +19,8 @@ func main() {
 
 	input := string(bytes)
 
-	fmt.Printf("AoC 2016, Day16, Part1 solution is: %d \n", compute(input, 40))
-	fmt.Printf("AoC 2016, Day16, Part2 solution is: %d \n", compute(input, 400000))
+	fmt.Printf("AoC 2016, Day18, Part1 solution is: %d \n", compute(input, 40))
+	fmt.Printf("AoC 2016, Day18, Part2 solution is: %d \n", compute(input, 400000))
 }
 
 func compute(input string, nrOfRows int) int {
