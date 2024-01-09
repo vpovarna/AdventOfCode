@@ -1,6 +1,7 @@
 package main
 
 import (
+	"aoc/algos"
 	"flag"
 	"fmt"
 	"os"
@@ -19,25 +20,37 @@ func main() {
 
 	input := string(bytes)
 
-	fmt.Printf("AoC 2016, Day19, Part1 solution is: %s \n", part1(input, "abcdefgh"))
-	fmt.Printf("AoC 2016, Day19, Part2 solution is: %d \n", part2(input))
+	fmt.Printf("AoC 2016, Day21, Part1 solution is: %s \n", part1(input, "abcdefgh"))
+	fmt.Printf("AoC 2016, Day21, Part2 solution is: %s \n", part2(input, "fbgdceah"))
 }
 
 func part1(input string, sourceStr string) string {
 	instructions := strings.Split(input, "\n")
 	currentStr := strings.Split(sourceStr, "")
 	for _, instruction := range instructions {
-		fmt.Println(instruction)
-		t := scramble(instruction, currentStr)
-		fmt.Println(strings.Join(t, ""))
-		currentStr = t
+		currentStr = scramble(instruction, currentStr)
 	}
 
 	return strings.Join(currentStr, "")
 }
 
-func part2(input string) int {
-	return -1
+func part2(input string, targetString string) string {
+	allStrings := algos.PermuteString(targetString)
+	runInstructions := func(currentStr string) string {
+		registers := strings.Split(currentStr, "")
+		for _, instruction := range strings.Split(input, "\n") {
+			registers = scramble(instruction, registers)
+		}
+		return strings.Join(registers, "")
+	}
+
+	for _, currentStr := range allStrings {
+		if runInstructions(currentStr) == targetString {
+			return currentStr
+		}
+	}
+
+	return ""
 }
 
 func scramble(instruction string, str []string) []string {
@@ -84,7 +97,7 @@ func scramble(instruction string, str []string) []string {
 		var letter string
 		fmt.Sscanf(instruction, "rotate based on position of letter %1s", &letter)
 		index := getIndex(str, letter)
-		if index == len(str)-1 {
+		if index >= 4 {
 			index++
 		}
 		str = rotateRight(str, index+1)
