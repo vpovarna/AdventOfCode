@@ -54,8 +54,8 @@ func part2(input string) int {
 		maxCol = utils.MaxInt(c[1], maxCol)
 		// getting the starting node, i.e. has zero used space
 		if n.used == 0 && n.size > 0 {
-			emptyDiskPos[0] = n.coord[1]
-			emptyDiskPos[1] = n.coord[0]
+			emptyDiskPos[0] = n.coord[0]
+			emptyDiskPos[1] = n.coord[1]
 		}
 	}
 
@@ -147,13 +147,4 @@ func parseInput(input string) map[[2]int]*node {
 	}
 
 	return allNodes
-}
-
-func printGrid(grid [][]node) {
-	for _, line := range grid {
-		for _, n := range line {
-			fmt.Print(n)
-		}
-		fmt.Println()
-	}
 }
