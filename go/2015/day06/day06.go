@@ -77,6 +77,58 @@ func part1(input string) int {
 	return count
 }
 
+// The phrase turn on actually means that you should increase the brightness of those lights by 1.
+// The phrase turn off actually means that you should decrease the brightness of those lights by 1, to a minimum of zero.
+// The phrase toggle actually means that you should increase the brightness of those lights by 2.
 func part2(input string) int {
-	return -1
+	lines := strings.Split(input, "\n")
+	grid := [1000][1000]int{}
+
+	// true  -> turn on
+	// false -> turn off
+	for _, line := range lines {
+		var i1, j1, i2, j2 int
+
+		switch {
+		case strings.HasPrefix(line, "turn on"):
+			fmt.Sscanf(line, "turn on %d,%d through %d,%d", &i1, &j1, &i2, &j2)
+			for i := i1; i <= i2; i++ {
+				for j := j1; j <= j2; j++ {
+					grid[i][j]++
+				}
+			}
+		case strings.HasPrefix(line, "turn off"):
+			fmt.Sscanf(line, "turn off %d,%d through %d,%d", &i1, &j1, &i2, &j2)
+			for i := i1; i <= i2; i++ {
+				for j := j1; j <= j2; j++ {
+					tmpVal := grid[i][j] - 1
+					if tmpVal < 0 {
+						grid[i][j] = 0
+					} else {
+						grid[i][j] = tmpVal
+					}
+				}
+			}
+		case strings.HasPrefix(line, "toggle"):
+			fmt.Sscanf(line, "toggle %d,%d through %d,%d", &i1, &j1, &i2, &j2)
+			for i := i1; i <= i2; i++ {
+				for j := j1; j <= j2; j++ {
+					grid[i][j] += 2
+				}
+			}
+		default:
+			fmt.Println(line)
+			panic("Unknown instruction")
+		}
+
+	}
+
+	// Count lit lights
+	var count int
+	for i := 0; i < 1000; i++ {
+		for j := 0; j < 1000; j++ {
+			count += grid[i][j]
+		}
+	}
+	return count
 }
