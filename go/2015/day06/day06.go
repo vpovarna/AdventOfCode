@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"strings"
 )
 
 var inputFile = flag.String("inputFile", "input.txt", "Relative file path to use as input")
@@ -23,7 +24,57 @@ func main() {
 }
 
 func part1(input string) int {
-	return -1
+	lines := strings.Split(input, "\n")
+	grid := [1000][1000]bool{}
+
+	// true  -> turn on
+	// false -> turn off
+	for _, line := range lines {
+		var i1, j1, i2, j2 int
+
+		switch {
+		case strings.HasPrefix(line, "turn on"):
+			fmt.Sscanf(line, "turn on %d,%d through %d,%d", &i1, &j1, &i2, &j2)
+			for i := i1; i <= i2; i++ {
+				for j := j1; j <= j2; j++ {
+					grid[i][j] = true
+				}
+			}
+		case strings.HasPrefix(line, "turn off"):
+			fmt.Sscanf(line, "turn off %d,%d through %d,%d", &i1, &j1, &i2, &j2)
+			for i := i1; i <= i2; i++ {
+				for j := j1; j <= j2; j++ {
+					grid[i][j] = false
+				}
+			}
+		case strings.HasPrefix(line, "toggle"):
+			fmt.Sscanf(line, "toggle %d,%d through %d,%d", &i1, &j1, &i2, &j2)
+			for i := i1; i <= i2; i++ {
+				for j := j1; j <= j2; j++ {
+					if !grid[i][j] {
+						grid[i][j] = true
+					} else {
+						grid[i][j] = false
+					}
+				}
+			}
+		default:
+			fmt.Println(line)
+			panic("Unknown instruction")
+		}
+
+	}
+
+	// Count lit lights
+	var count int
+	for i := 0; i < 1000; i++ {
+		for j := 0; j < 1000; j++ {
+			if grid[i][j] {
+				count++
+			}
+		}
+	}
+	return count
 }
 
 func part2(input string) int {
