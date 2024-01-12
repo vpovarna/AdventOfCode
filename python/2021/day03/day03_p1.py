@@ -2,34 +2,29 @@ import sys
 
 
 def main():
-    file = open(sys.argv[1], encoding='utf-8')
-    lines = file.readlines()
+    with open(sys.argv[1]) as fin:
+        lines = fin.read().strip().split("\n")
 
-    max_row = len(lines)
-    max_col = len(lines[0])
+    # max length
+    N = len(lines[0])
 
-    gama = ""
-    epsilon = ""
-
-    one_count, zero_count = 0, 0
-
-    for i in range(0, max_col -1):
-        for j in range(0, max_row -1):
-            line = lines[j].strip()
-            if (line[i] == "1"):
-                one_count +=1
-            else:
-                zero_count +=1
-        if one_count > zero_count:
-            gama += "1"
-            epsilon += "0"
+    gama_rate = [None] * N 
+    epsilon_rate = [None] * N
+   
+    for i in range(N):
+        zeros = sum([lines[j][i] == "0" for j in range(len(lines))])
+        ones = sum([lines[j][i] == "1" for j in range(len(lines))])
+  
+        if zeros > ones:
+            gama_rate[i] = "0"
+            epsilon_rate[i] = "1"
         else:
-            gama += "0"
-            epsilon += "1"
-        one_count, zero_count = 0, 0
+            gama_rate[i] = "1"
+            epsilon_rate[i] = "0"
 
-    ans = int(gama, 2) * int(epsilon, 2)
+    ans = int("".join(gama_rate), 2) * int("".join(epsilon_rate), 2)
     print(f"Day03 part1 solution is: {ans}")
+
 
 
 if __name__ == "__main__":
