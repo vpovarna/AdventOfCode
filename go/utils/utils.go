@@ -35,3 +35,13 @@ func MaxInt(nums ...int) int {
 	}
 	return maxNum
 }
+
+func Factorial(n int) int {
+	ans := 1
+
+	for i := 1; i <= n; i++ {
+		ans *= i
+	}
+
+	return ans
+}
