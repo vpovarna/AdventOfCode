@@ -19,14 +19,14 @@ func main() {
 
 	input := string(bytes)
 
-	fmt.Printf("AoC 2016, Day23, Part1 solution is: %d \n", part1(input))
-	fmt.Printf("AoC 2016, Day23, Part2 solution is: %d \n", part2(input))
+	fmt.Printf("AoC 2016, Day24, Part1 solution is: %d \n", part1(input))
+	fmt.Printf("AoC 2016, Day24, Part2 solution is: %d \n", part2(input))
 }
 
 func part1(input string) int {
-	return utils.Factorial(7) + 96*79
+	return -1
 }
 
 func part2(input string) int {
-	return utils.Factorial(12) + 96*79
+	return -1
 }
