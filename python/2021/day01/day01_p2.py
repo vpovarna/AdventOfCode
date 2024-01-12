@@ -1,11 +1,17 @@
-"""Module providing a function printing python version."""
 import sys
 
-file = open(sys.argv[1], encoding='utf-8')
 
-lines = file.readlines()
-values = [*map(int, lines)]
+def main():
+    file = open(sys.argv[1], encoding='utf-8')
 
-r = [x + y + z for x, y, z in zip(values, values[1:], values[2:])]
+    lines = file.readlines()
+    values = [*map(int, lines)]
 
-print(sum(y > x for x, y in zip(r, r[1:])))
+    r = [x + y + z for x, y, z in zip(values, values[1:], values[2:])]
+
+    ans = sum(y > x for x, y in zip(r, r[1:]))
+    print(f"Day01 part2 solution is: {ans}")
+
+
+if __name__ == "__main__":
+    main()
