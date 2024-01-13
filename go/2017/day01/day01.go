@@ -1,22 +1,13 @@
 package main
 
 import (
+	"aoc/cast"
 	"flag"
 	"fmt"
-	"math"
 	"os"
 )
 
 var inputFile = flag.String("inputFile", "input.txt", "Relative file path to use as input")
-
-type point struct {
-	x int
-	y int
-}
-
-func (p *point) distance() float64 {
-	return math.Abs(float64(p.x)) + math.Abs(float64(p.y))
-}
 
 func main() {
 	flag.Parse()
@@ -32,9 +23,29 @@ func main() {
 }
 
 func part1(input string) int {
-	return -1
+	ans := 0
+
+	for i := 1; i < len(input); i++ {
+		if input[i] == input[i-1] {
+			ans += cast.ToInt(input[i])
+		}
+	}
+
+	if input[0] == input[len(input)-1] {
+		ans += cast.ToInt(input[0])
+	}
+
+	return ans
 }
 
 func part2(input string) int {
-	return -1
+	ans := 0
+	n := len(input)
+	for i := 0; i < n/2; i++ {
+		if input[i] == input[n/2+i] {
+			ans += 2 * cast.ToInt(input[i])
+		}
+	}
+
+	return ans
 }
