@@ -1,5 +1,7 @@
 package utils
 
+import "aoc/cast"
+
 func Max(x, y int) int {
 	if x < y {
 		return y
@@ -44,4 +46,14 @@ func Factorial(n int) int {
 	}
 
 	return ans
+}
+
+func MapToInt(values []string) []int {
+	var intValues []int
+
+	for _, value := range values {
+		intValues = append(intValues, cast.ToInt(value))
+	}
+
+	return intValues
 }
