@@ -1,9 +1,11 @@
 package main
 
 import (
+	"aoc/utils"
 	"flag"
 	"fmt"
 	"os"
+	"strings"
 )
 
 var inputFile = flag.String("inputFile", "input.txt", "Relative file path to use as input")
@@ -22,9 +24,33 @@ func main() {
 }
 
 func part1(input string) int {
-	return -1
+	jumpOffsets := utils.MapToInt(strings.Split(input, "\n"))
+	var cycles, index int
+
+	for index >= 0 && index < len(jumpOffsets) {
+		tmpIndex := jumpOffsets[index]
+		jumpOffsets[index]++
+		index += tmpIndex
+		cycles++
+	}
+	return cycles
 }
 
 func part2(input string) int {
-	return -1
+	jumpOffsets := utils.MapToInt(strings.Split(input, "\n"))
+	var cycles, index int
+
+	for index >= 0 && index < len(jumpOffsets) {
+		tmpIndex := jumpOffsets[index]
+
+		if jumpOffsets[index] >= 3 {
+			jumpOffsets[index]--
+		} else {
+			jumpOffsets[index]++
+		}
+
+		index += tmpIndex
+		cycles++
+	}
+	return cycles
 }
