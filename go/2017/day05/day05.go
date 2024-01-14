@@ -4,8 +4,6 @@ import (
 	"flag"
 	"fmt"
 	"os"
-	"reflect"
-	"strings"
 )
 
 var inputFile = flag.String("inputFile", "input.txt", "Relative file path to use as input")
@@ -19,59 +17,14 @@ func main() {
 	}
 
 	input := string(bytes)
-
-	fmt.Printf("AoC 2015, Day6, Part1 solution is: %d \n", run(input, isValidPart1))
-	fmt.Printf("AoC 2015, Day6, Part2 solution is: %d \n", run(input, isValidPart2))
+	fmt.Printf("AoC 2017, Day5, Part1 solution is: %d \n", part1(input))
+	fmt.Printf("AoC 2017, Day5, Part2 solution is: %d \n", part2(input))
 }
 
-func run(input string, fn func(string) bool) int {
-	ans := 0
-
-	for _, line := range strings.Split(input, "\n") {
-		if fn(line) {
-			ans += 1
-		}
-	}
-	return ans
+func part1(input string) int {
+	return -1
 }
 
-func isValidPart1(line string) bool {
-	visited := map[string]bool{}
-
-	for _, word := range strings.Split(line, " ") {
-		if visited[word] {
-			return false
-		}
-
-		visited[word] = true
-	}
-
-	return true
-}
-
-func isValidPart2(line string) bool {
-	words := strings.Split(line, " ")
-	for i, word1 := range words {
-		for _, word2 := range words[i+1:] {
-			if areAnagrams(word1, word2) {
-				return false
-			}
-		}
-	}
-
-	return true
-}
-
-func areAnagrams(str1, str2 string) bool {
-	str1Occurrence := getOccurrenceMap(str1)
-	str2Occurrence := getOccurrenceMap(str2)
-	return reflect.DeepEqual(str1Occurrence, str2Occurrence)
-}
-
-func getOccurrenceMap(str string) map[string]int {
-	occurrence := map[string]int{}
-	for _, c := range strings.Split(str, "") {
-		occurrence[c]++
-	}
-	return occurrence
+func part2(input string) int {
+	return -1
 }
