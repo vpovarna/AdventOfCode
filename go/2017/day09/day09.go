@@ -8,12 +8,6 @@ import (
 
 var inputFile = flag.String("inputFile", "input.txt", "Relative file path to use as input")
 
-type graphNode struct {
-	name   string
-	weight int
-	edges  []string
-}
-
 func main() {
 	flag.Parse()
 	bytes, err := os.ReadFile(*inputFile)
