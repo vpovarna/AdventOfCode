@@ -18,81 +18,84 @@ func main() {
 	}
 
 	input := string(bytes)
-	fmt.Printf("AoC 2017, Day6, Part1 solution is: %d \n", part1(input))
-	fmt.Printf("AoC 2017, Day6, Part2 solution is: %d \n", part2(input))
+	fmt.Printf("AoC 2017, Day6, Part1 solution is: %d \n", run(input, 1))
+	fmt.Printf("AoC 2017, Day6, Part2 solution is: %d \n", run(input, 2))
 }
 
-func part1(input string) int {
+func run(input string, part int) int {
 	instructions := strings.Split(input, "\n")
 	registry := map[string]int{}
 
-	for _, instruction := range instructions {
-		var t, v, op1, op2 string
-		var n1, n2 int
+	var maxHighValue int
 
-		fmt.Sscanf(instruction, "%s %s %d if %s %s %d", &t, &op1, &n1, &v, &op2, &n2)
+	for _, instruction := range instructions {
+		var targetValue, value, op1, op2 string
+		var diff, comparedValue int
+
+		fmt.Sscanf(instruction, "%s %s %d if %s %s %d", &targetValue, &op1, &diff, &value, &op2, &comparedValue)
 
 		// populate registry
-		for _, c := range [2]string{t, v} {
+		for _, c := range [2]string{targetValue, value} {
 			if _, contains := registry[c]; !contains {
 				registry[c] = 0
 			}
 		}
 
-		fmt.Println(instruction)
-		fmt.Println(op2)
+		registerValue := registry[value]
+
 		switch op2 {
 		case ">":
-			if registry[v] > n2 {
-				if op1 == "inc" {
-					registry[t] += n1
-				} else {
-					registry[t] -= n1
-				}
+			if registerValue > comparedValue {
+				updateValue(op1, registry, targetValue, diff, &maxHighValue)
 			}
 		case "<":
-			if registry[v] < n2 {
-				if op1 == "inc" {
-					registry[t] += n1
-				} else {
-					registry[t] -= n1
-				}
+			if registerValue < comparedValue {
+				updateValue(op1, registry, targetValue, diff, &maxHighValue)
 			}
 		case "==":
-			if registry[v] == n2 {
-				if op1 == "inc" {
-					registry[t] += n1
-				} else {
-					registry[t] -= n1
-				}
+			if registerValue == comparedValue {
+				updateValue(op1, registry, targetValue, diff, &maxHighValue)
+			}
+		case "!=":
+			if registerValue != comparedValue {
+				updateValue(op1, registry, targetValue, diff, &maxHighValue)
 			}
 		case ">=":
-			if registry[v] >= n2 {
-				if op1 == "inc" {
-					registry[t] += n1
-				} else {
-					registry[t] -= n1
-				}
+			if registerValue >= comparedValue {
+				updateValue(op1, registry, targetValue, diff, &maxHighValue)
 			}
 		case "<=":
-			if registry[v] <= n2 {
-				if op1 == "inc" {
-					registry[t] += n1
-				} else {
-					registry[t] -= n1
-				}
+			if registerValue <= comparedValue {
+				updateValue(op1, registry, targetValue, diff, &maxHighValue)
 			}
 		default:
-			panic("invalid operation")
+			panic("invalid instruction: " + instruction)
 		}
-		fmt.Println(registry)
-		fmt.Println("=====")
 	}
-	fmt.Println(registry)
-
-	return -1
+	if part == 1 {
+		return getMaxValue(registry)
+	} else {
+		return maxHighValue
+	}
 }
 
-func part2(input string) int {
-	return -1
+func updateValue(op1 string, registry map[string]int, key string, diff int, maxHighValue *int) {
+	var tmpValue int
+	if op1 == "inc" {
+		tmpValue = registry[key] + diff
+	} else {
+		tmpValue = registry[key] - diff
+	}
+	*maxHighValue = max(*maxHighValue, tmpValue)
+	registry[key] = tmpValue
+
+}
+
+func getMaxValue(registry map[string]int) int {
+	maxValue := 0
+	for _, v := range registry {
+		maxValue = max(maxValue, v)
+	}
+
+	return maxValue
 }
