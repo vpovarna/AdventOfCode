@@ -25,8 +25,8 @@ func main() {
 	}
 
 	input := string(bytes)
-	fmt.Printf("AoC 2017, Day6, Part1 solution is: %s \n", part1(input))
-	fmt.Printf("AoC 2017, Day6, Part2 solution is: %d \n", part2(input))
+	fmt.Printf("AoC 2017, Day7, Part1 solution is: %s \n", part1(input))
+	fmt.Printf("AoC 2017, Day7, Part2 solution is: %d \n", part2(input))
 }
 
 func part1(input string) string {
