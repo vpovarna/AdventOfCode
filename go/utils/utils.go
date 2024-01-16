@@ -57,3 +57,12 @@ func MapToInt(values []string) []int {
 
 	return intValues
 }
+
+func SumIntSlice(values []int) int {
+	total := 0
+	for _, n := range values {
+		total += n
+	}
+
+	return total
+}
