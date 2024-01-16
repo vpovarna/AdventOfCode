@@ -36,6 +36,32 @@ func part1(input string) int {
 }
 
 func part2(input string) int {
+	graph := buildGraph(input)
+
+	allKeys := []int{}
+	for k := range graph {
+		allKeys = append(allKeys, k)
+	}
+
+	var groupCount int
+	// nodes that have been added to a group (that has been counted)
+	hasBeenGrouped := map[int]bool{}
+
+
+	for target := range graph {
+		if !hasBeenGrouped[target] {
+			for k := range graph {
+				if k != target && !hasBeenGrouped[k] {
+					if dfs(graph, k, target, map[int]bool{}) {
+						hasBeenGrouped[k] = true
+					}
+				}
+			}
+			groupCount++
+		}
+	}
+
+	return groupCount
 	return -1
 }
 
