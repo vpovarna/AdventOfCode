@@ -20,7 +20,7 @@ func main() {
 	input := string(bytes)
 
 	fmt.Printf("AoC 2017, Day14, Part1 solution is: %s \n", part1(input))
-	fmt.Printf("AoC 2017, Day14, Part2 solution is: %d \n", part2(input))
+	fmt.Printf("AoC 2017, Day14, Part2 solution is: %s \n", part2(input))
 }
 
 func part1(input string) string {
@@ -31,8 +31,26 @@ func part1(input string) string {
 	return strings.Join(chars, "")
 }
 
-func part2(input string) int {
-	return 1
+func part2(input string) string {
+	chars := strings.Split("abcdefghijklmnop", "")
+
+	seen := map[string]int{}
+	for i := 0; i < 1000000000; i++ {
+		for _, instruction := range strings.Split(input, ",") {
+			chars = danceMove(instruction, chars)
+		}
+		state := strings.Join(chars, "")
+
+		if lastSeenIdex, ok := seen[state]; ok {
+			diff := i - lastSeenIdex
+			for i+diff < 1000000000 {
+				i += diff
+			}
+		}
+
+		seen[state] = i
+	}
+	return strings.Join(chars, "")
 }
 
 func danceMove(instruction string, str []string) []string {
