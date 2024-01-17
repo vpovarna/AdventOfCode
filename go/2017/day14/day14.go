@@ -39,7 +39,7 @@ func part1(input string) int {
 }
 
 func part2(input string) int {
-	return -1
+	return numIslands(getDiskState(input))
 }
 
 func getDiskState(input string) [][]bool {
@@ -118,7 +118,6 @@ func parseInputASCII(input string) (ans []int) {
 	return ans
 }
 
-// helper for knot hasher
 func reverse(nums []int, left, right int) []int {
 	right %= len(nums)
 	if right < left {
@@ -139,13 +138,49 @@ func reverse(nums []int, left, right int) []int {
 func transformHexToBits(hex string) string {
 	var bits string
 	for _, char := range strings.Split(hex, "") {
-		// parse hex (base 16) to an int type (always base 10)
 		baseTen, err := strconv.ParseInt(char, 16, 64)
 		if err != nil {
 			panic("strconv error " + err.Error())
 		}
-		// add to bits string in binary form, 4 characters required
 		bits += fmt.Sprintf("%04b", baseTen)
 	}
 	return bits
+}
+
+func numIslands(grid [][]bool) int {
+	var count int
+
+	directions := [4][2]int{
+		{0, 1},
+		{0, -1},
+		{1, 0},
+		{-1, 0},
+	}
+	for i := 0; i < len(grid); i++ {
+		for j := 0; j < len(grid[0]); j++ {
+			if grid[i][j] {
+				// zero out connected cells (i.e. zero out this island)
+				queue := [][2]int{{i, j}}
+				for len(queue) > 0 {
+					// pop off queue
+					currentRow, currentCol := queue[0][0], queue[0][1]
+					grid[currentRow][currentCol] = false
+					queue = queue[1:]
+
+					// check neighbors, add to queue if true
+					for _, dir := range directions {
+						nextRow, nextCol := currentRow+dir[0], currentCol+dir[1]
+						if nextRow >= 0 && nextRow < len(grid) && nextCol >= 0 && nextCol < len(grid[0]) {
+							if grid[nextRow][nextCol] {
+								queue = append(queue, [2]int{nextRow, nextCol})
+							}
+						}
+					}
+				}
+				count++
+			}
+		}
+	}
+
+	return count
 }
