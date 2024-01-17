@@ -19,8 +19,8 @@ func main() {
 	}
 
 	input := string(bytes)
-	fmt.Printf("AoC 2017, Day11, Part1 solution is: %d \n", part1(input))
-	fmt.Printf("AoC 2017, Day11, Part2 solution is: %d \n", part2(input))
+	fmt.Printf("AoC 2017, Day12, Part1 solution is: %d \n", part1(input))
+	fmt.Printf("AoC 2017, Day12, Part2 solution is: %d \n", part2(input))
 }
 
 func part1(input string) int {
@@ -46,7 +46,6 @@ func part2(input string) int {
 	var groupCount int
 	// nodes that have been added to a group (that has been counted)
 	hasBeenGrouped := map[int]bool{}
-
 
 	for target := range graph {
 		if !hasBeenGrouped[target] {
