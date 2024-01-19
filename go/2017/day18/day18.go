@@ -11,11 +11,13 @@ import (
 
 var inputFile = flag.String("inputFile", "input.txt", "Relative file path to use as input")
 
+const noInput = math.MinInt16
+
 type computer struct {
 	instructions [][]string
 	pointer      int
 	registers    map[string]int
-	output       int
+	output       []int
 }
 
 func newComputer(input string, programId int) *computer {
@@ -26,52 +28,56 @@ func newComputer(input string, programId int) *computer {
 	return computer
 }
 
-func (c *computer) step(maxSteps int) {
+func (c *computer) step(inputNum int) {
 	for {
-		parts := c.instructions[c.pointer]
-
+		inst := c.instructions[c.pointer]
+		valX := inst[1]
 		var valY int
-		if len(parts) == 3 && parts[2] != "" {
-			valY = interpret(parts[2], c.registers)
+		if len(inst) == 3 && inst[2] != "" {
+			valY = interpret(inst[2], c.registers)
 		}
 
-		switch parts[0] {
-		// set X Y sets register X to the value of Y
-		case "set":
-			c.registers[parts[1]] = valY
-		// add X Y increases register X by the value of Y.
-		case "add":
-			c.registers[parts[1]] += valY
-		// mul X Y sets register X to the result of multiplying the value
-		case "mul":
-			c.registers[parts[1]] *= valY
-		// mod X Y sets register X to the remainder of dividing the value
-		case "mod":
-			c.registers[parts[1]] %= valY
-		// jgz X Y jumps with an offset of the value of Y, but only if the value of X is greater than zero.
-		// (An offset of 2 skips the next instruction, an offset of -1 jumps to the previous instruction, and so on.)
-		case "jgz":
-			if c.registers[parts[1]] > 0 {
-				c.pointer += valY
-				// We need to add continue to skip the i increment
-				continue
-			}
-		//snd X plays a sound with a frequency equal to the value of X.
+		switch inst[0] {
 		case "snd":
-			c.output = c.registers[parts[1]]
-		//rcv X recovers the frequency of the last sound played, but only when the value of X is not zero. (If it is zero, the command does nothing.)
+			c.output = append(c.output, c.registers[valX])
+			c.pointer++
+		case "set":
+			c.registers[valX] = valY
+			c.pointer++
+		case "add":
+			c.registers[valX] += valY
+			c.pointer++
+		case "mul":
+			c.registers[valX] *= valY
+			c.pointer++
+		case "mod":
+			c.registers[valX] %= valY
+			c.pointer++
 		case "rcv":
-			if c.registers[parts[1]] != 0 {
+			if inputNum == noInput {
 				return
 			}
+			c.registers[valX] = inputNum
+			inputNum = noInput
+			c.pointer++
+		case "jgz":
+			var parsedX int
+			if num, err := strconv.Atoi(valX); err != nil {
+				// err converting, not a number
+				parsedX = c.registers[valX]
+			} else {
+				// no error then a number was parsed
+				parsedX = num
+			}
+			if parsedX > 0 {
+				c.pointer += valY + len(c.instructions)
+				c.pointer %= len(c.instructions)
+			} else {
+				c.pointer++
+			}
 		default:
-			panic("Unhandled instruction: " + strings.Join(parts, " "))
+			panic("unhandled operator " + inst[0])
 		}
-
-		// fmt.Println(registers)
-		// fmt.Println(played)
-		// fmt.Println("===========")
-		c.pointer += 1
 	}
 }
 
@@ -91,72 +97,37 @@ func main() {
 
 func part1(input string) int {
 	computer := newComputer(input, 0)
-	computer.step(math.MaxInt16)
-	return computer.output
+	computer.step(noInput)
+	return computer.output[len(computer.output)-1]
 }
 
 func part2(input string) int {
-	return -1
-}
+	program0 := newComputer(input, 0)
+	program1 := newComputer(input, 1)
 
-func runInstructions(input string) int {
-	registers := map[string]int{}
-	played := 0
+	// prime the computers
+	program0.step(noInput)
+	program1.step(noInput)
 
-	lines := strings.Split(input, "\n")
+	var sentFrom1 int
 
-	i := 0
-	for i < len(lines) {
-		line := lines[i]
-		// fmt.Println(line)
-
-		parts := strings.Split(line, " ")
-
-		var valY int
-		if len(parts) == 3 && parts[2] != "" {
-			valY = interpret(parts[2], registers)
+	for len(program0.output)+len(program1.output) > 0 {
+		// run outputs from program zero through program 1
+		for len(program0.output) > 0 {
+			v := program0.output[0]
+			program0.output = program0.output[1:]
+			program1.step(v)
 		}
-
-		switch parts[0] {
-		// set X Y sets register X to the value of Y
-		case "set":
-			registers[parts[1]] = valY
-		// add X Y increases register X by the value of Y.
-		case "add":
-			registers[parts[1]] += valY
-		// mul X Y sets register X to the result of multiplying the value
-		case "mul":
-			registers[parts[1]] *= valY
-		// mod X Y sets register X to the remainder of dividing the value
-		case "mod":
-			registers[parts[1]] %= valY
-		// jgz X Y jumps with an offset of the value of Y, but only if the value of X is greater than zero.
-		// (An offset of 2 skips the next instruction, an offset of -1 jumps to the previous instruction, and so on.)
-		case "jgz":
-			if registers[parts[1]] > 0 {
-				i += valY
-				// We need to add continue to skip the i increment
-				continue
-			}
-		//snd X plays a sound with a frequency equal to the value of X.
-		case "snd":
-			played = registers[parts[1]]
-		//rcv X recovers the frequency of the last sound played, but only when the value of X is not zero. (If it is zero, the command does nothing.)
-		case "rcv":
-			if registers[parts[1]] != 0 {
-				return played
-			}
-		default:
-			panic("Unhandled instruction: " + line)
+		// and vice versa
+		for len(program1.output) > 0 {
+			v := program1.output[0]
+			program1.output = program1.output[1:]
+			program0.step(v)
+			sentFrom1++
 		}
-
-		// fmt.Println(registers)
-		// fmt.Println(played)
-		// fmt.Println("===========")
-		i += 1
 	}
 
-	return -1
+	return sentFrom1
 }
 
 func interpret(val string, register map[string]int) int {
