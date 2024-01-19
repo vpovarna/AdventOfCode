@@ -1,10 +1,10 @@
 package main
 
 import (
-	"aoc/cast"
 	"flag"
 	"fmt"
 	"os"
+	"strconv"
 	"strings"
 )
 
@@ -25,8 +25,7 @@ func main() {
 }
 
 func part1(input string) int {
-	runInstructions(input)
-	return -1
+	return runInstructions(input)
 }
 
 func part2(input string) int {
@@ -35,37 +34,71 @@ func part2(input string) int {
 
 func runInstructions(input string) int {
 	registers := map[string]int{}
+	played := 0
+
 	lines := strings.Split(input, "\n")
-	for i := 0; i < len(lines); i++ {
+
+	i := 0
+	for i < len(lines) {
 		line := lines[i]
+		// fmt.Println(line)
+
 		parts := strings.Split(line, " ")
+
+		var valY int
+		if len(parts) == 3 && parts[2] != "" {
+			valY = interpret(parts[2], registers)
+		}
 
 		switch parts[0] {
 		// set X Y sets register X to the value of Y
 		case "set":
-			registers[parts[1]] = cast.ToInt(parts[2])
+			registers[parts[1]] = valY
 		// add X Y increases register X by the value of Y.
 		case "add":
-			registers[parts[1]] += cast.ToInt(parts[2])
+			registers[parts[1]] += valY
 		// mul X Y sets register X to the result of multiplying the value
 		case "mul":
-			fmt.Println(parts[2])
-			registers[parts[1]] *= cast.ToInt(parts[2])
+			registers[parts[1]] *= valY
 		// mod X Y sets register X to the remainder of dividing the value
 		case "mod":
-			registers[parts[1]] = registers[parts[1]] % cast.ToInt(parts[2])
+			registers[parts[1]] %= valY
 		// jgz X Y jumps with an offset of the value of Y, but only if the value of X is greater than zero.
 		// (An offset of 2 skips the next instruction, an offset of -1 jumps to the previous instruction, and so on.)
 		case "jgz":
-			if cast.ToInt(parts[2]) > 0 {
-				i += cast.ToInt(parts[3])
+			if registers[parts[1]] > 0 {
+				i += valY
+				// We need to add continue to skip the i increment
+				continue
+			}
+		//snd X plays a sound with a frequency equal to the value of X.
+		case "snd":
+			played = registers[parts[1]]
+		//rcv X recovers the frequency of the last sound played, but only when the value of X is not zero. (If it is zero, the command does nothing.)
+		case "rcv":
+			if registers[parts[1]] != 0 {
+				return played
 			}
 		default:
 			panic("Unhandled instruction: " + line)
 		}
+
+		// fmt.Println(registers)
+		// fmt.Println(played)
+		// fmt.Println("===========")
+		i += 1
 	}
 
-	fmt.Println(registers)
-
 	return -1
+}
+
+func interpret(val string, register map[string]int) int {
+	var varY int
+	if v, err := strconv.Atoi(val); err != nil {
+		varY = register[val]
+	} else {
+		varY = v
+	}
+
+	return varY
 }
