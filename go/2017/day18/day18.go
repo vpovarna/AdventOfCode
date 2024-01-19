@@ -3,12 +3,77 @@ package main
 import (
 	"flag"
 	"fmt"
+	"math"
 	"os"
 	"strconv"
 	"strings"
 )
 
 var inputFile = flag.String("inputFile", "input.txt", "Relative file path to use as input")
+
+type computer struct {
+	instructions [][]string
+	pointer      int
+	registers    map[string]int
+	output       int
+}
+
+func newComputer(input string, programId int) *computer {
+	computer := &computer{registers: map[string]int{"p": programId}}
+	for _, line := range strings.Split(input, "\n") {
+		computer.instructions = append(computer.instructions, strings.Split(line, " "))
+	}
+	return computer
+}
+
+func (c *computer) step(maxSteps int) {
+	for {
+		parts := c.instructions[c.pointer]
+
+		var valY int
+		if len(parts) == 3 && parts[2] != "" {
+			valY = interpret(parts[2], c.registers)
+		}
+
+		switch parts[0] {
+		// set X Y sets register X to the value of Y
+		case "set":
+			c.registers[parts[1]] = valY
+		// add X Y increases register X by the value of Y.
+		case "add":
+			c.registers[parts[1]] += valY
+		// mul X Y sets register X to the result of multiplying the value
+		case "mul":
+			c.registers[parts[1]] *= valY
+		// mod X Y sets register X to the remainder of dividing the value
+		case "mod":
+			c.registers[parts[1]] %= valY
+		// jgz X Y jumps with an offset of the value of Y, but only if the value of X is greater than zero.
+		// (An offset of 2 skips the next instruction, an offset of -1 jumps to the previous instruction, and so on.)
+		case "jgz":
+			if c.registers[parts[1]] > 0 {
+				c.pointer += valY
+				// We need to add continue to skip the i increment
+				continue
+			}
+		//snd X plays a sound with a frequency equal to the value of X.
+		case "snd":
+			c.output = c.registers[parts[1]]
+		//rcv X recovers the frequency of the last sound played, but only when the value of X is not zero. (If it is zero, the command does nothing.)
+		case "rcv":
+			if c.registers[parts[1]] != 0 {
+				return
+			}
+		default:
+			panic("Unhandled instruction: " + strings.Join(parts, " "))
+		}
+
+		// fmt.Println(registers)
+		// fmt.Println(played)
+		// fmt.Println("===========")
+		c.pointer += 1
+	}
+}
 
 func main() {
 	flag.Parse()
@@ -25,7 +90,9 @@ func main() {
 }
 
 func part1(input string) int {
-	return runInstructions(input)
+	computer := newComputer(input, 0)
+	computer.step(math.MaxInt16)
+	return computer.output
 }
 
 func part2(input string) int {
