@@ -30,7 +30,32 @@ func part1(input string) int {
 }
 
 func part2(input string) int {
-	return -1
+	b := 81
+	c := 81
+
+	b = b*100 + 100000
+	c = b + 17000
+	var h int
+	for {
+		f := 1
+		// effectively a prime number checker.
+		for d := 2; d*d <= b; d++ {
+			if b%d == 0 {
+				f = 0
+				break
+			}
+		}
+
+		if f == 0 {
+			h++
+		}
+		if b == c {
+			break
+		}
+		b += 17
+	}
+
+	return h
 }
 
 type computer struct {
