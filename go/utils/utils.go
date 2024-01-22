@@ -66,3 +66,18 @@ func SumIntSlice(values []int) int {
 
 	return total
 }
+
+func ManhattanDistance(x1, y1, x2, y2 int) int {
+	xDiff := x1 - x2
+	yDiff := y1 - y2
+
+	if xDiff < 0 {
+		xDiff *= -1
+	}
+
+	if yDiff < 0 {
+		yDiff *= -1
+	}
+
+	return xDiff + yDiff
+}
