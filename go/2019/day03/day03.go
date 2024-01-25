@@ -11,6 +11,31 @@ import (
 
 var inputFile = flag.String("inputFile", "input.txt", "Relative file path to use as input")
 
+type coordinate struct {
+	x int
+	y int
+}
+
+func (coord *coordinate) moveUp() {
+	coord.x--
+}
+
+func (coord *coordinate) moveDown() {
+	coord.x++
+}
+
+func (coord *coordinate) moveRight() {
+	coord.y++
+}
+
+func (coord *coordinate) moveLeft() {
+	coord.y--
+}
+
+func (coord *coordinate) toString() string {
+	return fmt.Sprintf("%dx%d", coord.x, coord.y)
+}
+
 func main() {
 	flag.Parse()
 	bytes, err := os.ReadFile(*inputFile)
@@ -30,8 +55,9 @@ func part1(input string) int {
 		panic("invalid input")
 	}
 
-	coordinatesMap1 := getCoordinates(lines[0], 1)
-	coordinatesMap2 := getCoordinates(lines[1], 1)
+	// We need to pass two separate starting points
+	coordinatesMap1 := getCoordinates(lines[0], &coordinate{0, 0}, 1)
+	coordinatesMap2 := getCoordinates(lines[1], &coordinate{0, 0}, 1)
 
 	dist := math.MaxInt32
 
@@ -50,8 +76,8 @@ func part2(input string) int {
 		panic("invalid input")
 	}
 
-	coordinatesMap1 := getCoordinates(lines[0], 1)
-	coordinatesMap2 := getCoordinates(lines[1], 1)
+	coordinatesMap1 := getCoordinates(lines[0], &coordinate{0, 0}, 1)
+	coordinatesMap2 := getCoordinates(lines[1], &coordinate{0, 0}, 1)
 
 	longestDistance := math.MaxInt32
 
@@ -64,11 +90,9 @@ func part2(input string) int {
 	return longestDistance
 }
 
-func getCoordinates(rowCoordinates string, part int) map[string]int {
+func getCoordinates(rowCoordinates string, coord *coordinate, part int) map[string]int {
 
 	coordinates := strings.Split(rowCoordinates, ",")
-	// TODO: replace this with a struct
-	x, y := 0, 0
 	runningLength := 0
 
 	coordinatesMap := map[string]int{}
@@ -83,17 +107,17 @@ func getCoordinates(rowCoordinates string, part int) map[string]int {
 
 			switch direction {
 			case 'U':
-				x -= 1
+				coord.moveUp()
 			case 'R':
-				y += 1
+				coord.moveRight()
 			case 'D':
-				x += 1
+				coord.moveDown()
 			case 'L':
-				y -= 1
+				coord.moveLeft()
 			default:
 				panic("unhandled direction")
 			}
-			key := fmt.Sprintf("%dx%d", x, y)
+			key := coord.toString()
 
 			if part == 2 {
 				if _, alreadyVisited := coordinatesMap[key]; !alreadyVisited {
