@@ -19,11 +19,11 @@ func main() {
 	}
 
 	input := string(bytes)
-	fmt.Printf("AoC 2019, Day4, Part1 solution is: %d \n", part1(input))
-	fmt.Printf("AoC 2019, Day4, Part2 solution is: %d \n", part2(input))
+	fmt.Printf("AoC 2019, Day4, Part1 solution is: %d \n", run(input, 1))
+	fmt.Printf("AoC 2019, Day4, Part2 solution is: %d \n", run(input, 2))
 }
 
-func part1(input string) int {
+func run(input string, part int) int {
 	ranges := strings.Split(input, "-")
 	from, _ := strconv.Atoi(ranges[0])
 	to, _ := strconv.Atoi(ranges[1])
@@ -31,21 +31,9 @@ func part1(input string) int {
 	count := 0
 	for i := from; i <= to; i++ {
 		digits := makeDigitsSlice(i)
-		if isIncreasing(digits) && hasDuplicate(digits) {
-			count++
+		if part == 2 {
+			digits = shrinkLargeGroups(digits)
 		}
-	}
-	return count
-}
-
-func part2(input string) int {
-	ranges := strings.Split(input, "-")
-	from, _ := strconv.Atoi(ranges[0])
-	to, _ := strconv.Atoi(ranges[1])
-
-	count := 0
-	for i := from; i <= to; i++ {
-		digits := shrinkLargeGroups(makeDigitsSlice(i))
 		if isIncreasing(digits) && hasDuplicate(digits) {
 			count++
 		}
