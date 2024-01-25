@@ -63,6 +63,7 @@ func hasDuplicate(digits []int) bool {
 	return count > 0
 }
 
+// TODO: TO review this
 func shrinkLargeGroups(digits []int) []int {
 	for i := 0; i < len(digits)-2; i++ {
 		if digits[i] == digits[i+1] && digits[i] == digits[i+2] {
