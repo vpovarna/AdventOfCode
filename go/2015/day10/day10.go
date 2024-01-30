@@ -53,7 +53,3 @@ func run(input string, iterations int) int {
 
 	return len(input)
 }
-
-func part2(input string) int {
-	return -1
-}
