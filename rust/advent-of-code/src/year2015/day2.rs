@@ -1,4 +1,4 @@
-use std::fs::read_to_string;
+use crate::utils::read_lines;
 
 use itertools::Itertools;
 
@@ -59,12 +59,4 @@ fn parse_line(line: &String) -> Vec<usize> {
     line.split('x')
         .map(|size: &str| size.parse().unwrap())
         .collect_vec()
-}
-
-fn read_lines(input: &String) -> Vec<String> {
-    read_to_string(input)
-        .unwrap()
-        .lines()
-        .map(String::from)
-        .collect()
 }
