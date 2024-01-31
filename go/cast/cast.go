@@ -27,3 +27,27 @@ func ToInt(arg interface{}) int {
 
 	return val
 }
+
+func ToASCIICode(arg interface{}) int {
+	var asciVal int
+	switch arg.(type) {
+	case string:
+		str := arg.(string)
+		if len(str) != 1 {
+			panic("Can only convert ascii code for string of length 1")
+		}
+		asciVal = int(str[0])
+	case byte:
+		asciVal = int(arg.(byte))
+	case rune:
+		asciVal = int(arg.(rune))
+	default:
+		panic("unsupported type")
+	}
+
+	return asciVal
+}
+
+func ASCIIIntToChar(code int) string {
+	return string(rune(code))
+}
