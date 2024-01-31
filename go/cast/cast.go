@@ -51,3 +51,12 @@ func ToASCIICode(arg interface{}) int {
 func ASCIIIntToChar(code int) string {
 	return string(rune(code))
 }
+
+func MapSliceOfStringToInt(strings []string) []int {
+	output := []int{}
+	for _, s := range strings {
+		output = append(output, ToInt(s))
+	}
+
+	return output
+}
