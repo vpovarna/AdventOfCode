@@ -86,8 +86,62 @@ func part1(input string) int {
 	return total
 }
 
+// "Anyway, the second column says how the round needs to end: X means you need to lose, Y means you need to end the round in a draw, and Z means you need to win. Good luck!"
+//   - In the first round, your opponent will choose Rock (A), and you need the round to end in a draw (Y), so you also choose Rock. This gives you a score of 1 + 3 = 4.
+//   - In the second round, your opponent will choose Paper (B), and you choose Rock so you lose (X) with a score of 1 + 0 = 1.
+//   - In the third round, you will defeat your opponent's Scissors with Rock for a score of 1 + 6 = 7.
 func part2(input string) int {
-	return -1
+	ans := parseInput(input)
+	// A, X -> Rock ; B, Y-> Paper ; C, Z -> Scissor
+
+	winingScores := map[string]int{
+		"X": Loss,
+		"Y": Draw,
+		"Z": Win,
+	}
+
+	total := 0
+
+	for _, l := range ans {
+		switch l[0] {
+		case "A": // draw
+			switch l[1] {
+			case "X":
+				total += Scissor
+			case "Y":
+				total += Rock
+			case "Z":
+				total += Paper
+			default:
+				panic("unhandled choice")
+			}
+		case "B": // win
+			switch l[1] {
+			case "X":
+				total += Rock
+			case "Y":
+				total += Paper
+			case "Z":
+				total += Scissor
+			default:
+				panic("unhandled choice")
+			}
+		case "C": //lose
+			switch l[1] {
+			case "X":
+				total += Paper
+			case "Y":
+				total += Scissor
+			case "Z":
+				total += Rock
+			default:
+				panic("unhandled choice")
+			}
+		}
+		total += winingScores[l[1]]
+	}
+
+	return total
 }
 
 func parseInput(input string) (ans [][]string) {
