@@ -40,30 +40,38 @@ func part1(input string) int {
 }
 
 func part2(input string) int {
-	// priorities := getPriorities()
+	priorities := getPriorities()
 	total := 0
 
-	// lines := strings.Split(input, "\n")
+	lines := strings.Split(input, "\n")
 
-	// for i := 2; i < len(lines); i++ {
-	// 	str1 := lines[i-2]
-	// 	str2 := lines[i-1]
-	// 	str3 := lines[i]
+	for i := 2; i < len(lines); i += 3 {
+		str1 := lines[i-2]
+		str2 := lines[i-1]
+		str3 := lines[i]
 
-	// }
+		c1 := getCommonChar(str1, str2)
+		c2 := getCommonChar(str3, str1)
+		commonChars := getCommonChar(strings.Join(c1, ""), strings.Join(c2, ""))
+
+		if len(commonChars) != 1 {
+			panic("expected a single char")
+		}
+		total += priorities[commonChars[0]]
+	}
 	return total
 
 }
 
-func getCommonChar(str1, str2 string) []rune {
+func getCommonChar(str1, str2 string) []string {
 	copart1Map := getStringSet(str1)
-	commonChars := []rune{}
+	commonChars := []string{}
 	uniqueChars := map[rune]bool{}
 
 	for _, c := range str2 {
 		if copart1Map[c] {
 			if !uniqueChars[c] {
-				commonChars = append(commonChars, c)
+				commonChars = append(commonChars, string(c))
 				uniqueChars[c] = true
 			}
 		}
@@ -71,11 +79,11 @@ func getCommonChar(str1, str2 string) []rune {
 	return commonChars
 }
 
-func getPriorities() map[rune]int {
-	priorities := map[rune]int{}
+func getPriorities() map[string]int {
+	priorities := map[string]int{}
 	for i := 0; i < 26; i++ {
-		priorities[rune('a'+i)] = i + 1
-		priorities[rune('A'+i)] = i + 27
+		priorities[string(rune('a'+i))] = i + 1
+		priorities[string(rune('A'+i))] = i + 27
 	}
 
 	return priorities
