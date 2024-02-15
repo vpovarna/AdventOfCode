@@ -20,71 +20,104 @@ func main() {
 
 	input := string(bytes)
 
-	fmt.Printf("AoC 2022, Day9, Part1 solution is: %d \n", part1(input))
-	fmt.Printf("AoC 2022, Day9, Part2 solution is: %d \n", part2(input))
-}
-
-var directions = map[string][2]int{
-	"U": {1, 0},
-	"D": {-1, 0},
-	"R": {0, 1},
-	"L": {0, -1},
+	fmt.Printf("AoC 2022, Day9, Part1 solution is: %d \n", run(input, 2))
+	fmt.Printf("AoC 2022, Day9, Part2 solution is: %d \n", run(input, 10))
 }
 
 type instruction struct {
-	direction string
-	steps     int
+	dir string
+	val int
 }
 
-func part1(input string) int {
+func run(input string, size int) int {
 	instructions := parseInput(input)
 
-	var head, tail [2]int
-	visited := map[[2]int]bool{
-		{0, 0}: true,
-	}
+	rope := initRope(size)
 
-	for _, instruction := range instructions {
-		for instruction.steps > 0 {
-			diff := directions[instruction.direction]
-
-			head[0] += diff[0]
-			head[1] += diff[1]
-
-			rowDiff := head[0] - tail[0]
-			colDiff := head[1] - tail[1]
-
-			if mathy.AbsInt(rowDiff) > 1 {
-				tail[0] += rowDiff / 2
-				if colDiff != 0 {
-					tail[1] += colDiff
-				}
-			} else if mathy.AbsInt(colDiff) > 1 {
-				tail[1] += colDiff / 2
-				if rowDiff != 0 {
-					tail[0] += rowDiff
-				}
-			}
-			visited[tail] = true
-			instruction.steps--
+	visited := map[[2]int]bool{}
+	for _, inst := range instructions {
+		for inst.val > 0 {
+			rope.moveOneSpace(inst.dir)
+			visited[rope.tail.coords] = true
+			inst.val--
 		}
 	}
+
 	return len(visited)
 }
 
-func part2(input string) int {
-	return -1
-}
-
-func parseInput(input string) (instructions []instruction) {
-	lines := strings.Split(input, "\n")
-	for _, i := range lines {
-		parts := strings.Split(i, " ")
-		instructions = append(instructions, instruction{
-			direction: parts[0],
-			steps:     cast.ToInt(parts[1]),
+func parseInput(input string) (ans []instruction) {
+	for _, line := range strings.Split(input, "\n") {
+		ans = append(ans, instruction{
+			dir: line[:1],
+			val: cast.ToInt(line[2:]),
 		})
 	}
+	return ans
+}
 
-	return instructions
+type node struct {
+	coords [2]int // row, col still
+	next   *node
+}
+
+type rope struct {
+	head, tail *node
+}
+
+func initRope(length int) rope {
+	head := &node{}
+	itr := head
+
+	// start at 1 to account for head already being created
+	for i := 1; i < length; i++ {
+		itr.next = &node{}
+		itr = itr.next
+	}
+
+	return rope{
+		head: head,
+		tail: itr,
+	}
+}
+
+func (r rope) moveOneSpace(dir string) {
+	diffs := map[string][2]int{
+		"U": {1, 0},
+		"D": {-1, 0},
+		"L": {0, -1},
+		"R": {0, 1},
+	}
+
+	diff := diffs[dir]
+	r.head.coords[0] += diff[0]
+	r.head.coords[1] += diff[1]
+
+	r.head.updateTrailer()
+}
+
+func (n *node) updateTrailer() {
+	if n.next == nil {
+		return
+	}
+
+	rowDiff := n.coords[0] - n.next.coords[0]
+	colDiff := n.coords[1] - n.next.coords[1]
+
+	if mathy.AbsInt(rowDiff) > 1 && mathy.AbsInt(colDiff) > 1 {
+		n.next.coords[0] += rowDiff / 2
+		n.next.coords[1] += colDiff / 2
+	} else if mathy.AbsInt(rowDiff) > 1 {
+		// see part1 for math logic
+		n.next.coords[0] += rowDiff / 2
+		n.next.coords[1] += colDiff
+	} else if mathy.AbsInt(colDiff) > 1 {
+		n.next.coords[1] += colDiff / 2
+		n.next.coords[0] += rowDiff
+	} else {
+		return
+	}
+
+	// go to next node
+	n.next.updateTrailer()
 }
