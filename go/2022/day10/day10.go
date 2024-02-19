@@ -26,34 +26,10 @@ func main() {
 }
 
 func part1(input string) int {
-	x := 1
-
-	output := []int{}
-
-	// add a 0 to have values starting from index 1
-	output = append(output, 0)
-
-	lines := strings.Split(input, "\n")
-
-	for _, line := range lines {
-		if line == "noop" {
-			output = append(output, x)
-		} else {
-			parts := strings.Split(line, " ")
-			count := cast.ToInt(parts[1])
-
-			// wait to cycles
-			output = append(output, x)
-			output = append(output, x)
-			x += count
-		}
-	}
-
-	output = append(output, x)
-
+	output := getOutput(input)
 	ans := 0
 	for i := 20; i <= 220; i += 40 {
-		v := i * output[i]
+		v := i * output[i-1]
 		ans += v
 	}
 
@@ -61,24 +37,7 @@ func part1(input string) int {
 }
 
 func part2(input string) {
-	x := 1
-
-	output := []int{}
-	lines := strings.Split(input, "\n")
-
-	for _, line := range lines {
-		if line == "noop" {
-			output = append(output, x)
-		} else {
-			parts := strings.Split(line, " ")
-			count := cast.ToInt(parts[1])
-
-			// wait to cycles
-			output = append(output, x)
-			output = append(output, x)
-			x += count
-		}
-	}
+	output := getOutput(input)
 
 	var draw = strings.Builder{}
 
@@ -93,4 +52,26 @@ func part2(input string) {
 		draw.WriteString("\n")
 	}
 	fmt.Println(draw.String())
+}
+
+func getOutput(input string) (output []int) {
+	x := 1
+
+	lines := strings.Split(input, "\n")
+
+	for _, line := range lines {
+		if line == "noop" {
+			output = append(output, x)
+		} else {
+			parts := strings.Split(line, " ")
+			count := cast.ToInt(parts[1])
+
+			// wait to cycles
+			output = append(output, x)
+			output = append(output, x)
+			x += count
+		}
+	}
+
+	return output
 }
