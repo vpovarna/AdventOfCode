@@ -1,4 +1,3 @@
-import argparse
 from typing import List
 
 
@@ -31,21 +30,8 @@ def get_calories(input: str) -> List[int]:
 
 
 def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "-t",
-        "--test_input",
-        help="Run Program with test input",
-        type=bool,
-        default=False,
-    )
-
-    args = parser.parse_args()
-
-    input_file = "test_input.txt" if args.test_input else "input.txt"
-
-    print(f"AoC2022 Day1, Part1 solution is: {part1(input_file)}")
-    print(f"AoC2022 Day1, Part2 solution is: {part2(input_file)}")
+    print(f"AoC2022 Day1, Part1 solution is: {part1('input.txt')}")
+    print(f"AoC2022 Day1, Part2 solution is: {part2('input.txt')}")
 
 
 if __name__ == "__main__":
