@@ -51,8 +51,9 @@ def parse_input(input: str) -> List[str]:
 
 
 def main():
-    print(f"AoC2022 Day1, Part1 solution is: {run('input.txt', part1_condition)}")
-    print(f"AoC2022 Day1, Part2 solution is: {run('input.txt', part2_condition)}")
+    puzzle_input_path = '2022/day04/input.txt'
+    print(f"AoC2022 Day1, Part1 solution is: {run(puzzle_input_path, part1_condition)}")
+    print(f"AoC2022 Day1, Part2 solution is: {run(puzzle_input_path, part2_condition)}")
 
 
 if __name__ == "__main__":

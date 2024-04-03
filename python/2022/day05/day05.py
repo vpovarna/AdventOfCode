@@ -1,7 +1,5 @@
 from dataclasses import dataclass
-import os
 from typing import List
-from collections import deque
 
 
 @dataclass
@@ -40,7 +38,7 @@ def create_stacks(input: str) -> List[List[str]]:
     return stacks
 
 
-def part1(input: str) -> str:
+def run(input: str, reverse: bool) -> str:
     stacks = create_stacks(parse_input(input)[0])
     actions = create_actions(parse_input(input)[1])
 
@@ -50,17 +48,14 @@ def part1(input: str) -> str:
         nr_of_crates = action.nr_of_crates
 
         creates = stacks[from_stack - 1][:nr_of_crates]
-        creates.reverse()
+        if reverse:
+            creates.reverse()
 
         stacks[to_stack - 1] = creates + stacks[to_stack - 1]
         stacks[from_stack - 1] = stacks[from_stack - 1][action.nr_of_crates :]
 
     first_crates = [stack[0] for stack in stacks]
     return "".join(first_crates)
-
-
-def part2(input: str) -> str:
-    return ""
 
 
 def parse_input(input: str) -> List[str]:
@@ -71,8 +66,9 @@ def parse_input(input: str) -> List[str]:
 
 
 def main():
-    print(f"AoC2022 Day1, Part1 solution is: {part1('input.txt')}")
-    print(f"AoC2022 Day1, Part2 solution is: {part2('input.txt')}")
+    puzzle_input_path = '2022/day05/input.txt'
+    print(f"AoC2022 Day1, Part1 solution is: {run(input=puzzle_input_path, reverse = True)}")
+    print(f"AoC2022 Day1, Part2 solution is: {run(input=puzzle_input_path, reverse = False)}")
 
 
 if __name__ == "__main__":

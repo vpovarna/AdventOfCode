@@ -30,8 +30,9 @@ def get_calories(input: str) -> List[int]:
 
 
 def main():
-    print(f"AoC2022 Day1, Part1 solution is: {part1('input.txt')}")
-    print(f"AoC2022 Day1, Part2 solution is: {part2('input.txt')}")
+    puzzle_input_path = '2022/day01/input.txt'
+    print(f"AoC2022 Day1, Part1 solution is: {part1(puzzle_input_path)}")
+    print(f"AoC2022 Day1, Part2 solution is: {part2(puzzle_input_path)}")
 
 
 if __name__ == "__main__":
