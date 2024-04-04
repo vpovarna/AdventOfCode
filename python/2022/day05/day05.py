@@ -67,8 +67,8 @@ def parse_input(input: str) -> List[str]:
 
 def main():
     puzzle_input_path = '2022/day05/input.txt'
-    print(f"AoC2022 Day1, Part1 solution is: {run(input=puzzle_input_path, reverse = True)}")
-    print(f"AoC2022 Day1, Part2 solution is: {run(input=puzzle_input_path, reverse = False)}")
+    print(f"AoC2022 Day5, Part1 solution is: {run(input=puzzle_input_path, reverse = True)}")
+    print(f"AoC2022 Day5, Part2 solution is: {run(input=puzzle_input_path, reverse = False)}")
 
 
 if __name__ == "__main__":
