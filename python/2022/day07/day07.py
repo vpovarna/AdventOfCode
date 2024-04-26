@@ -28,6 +28,28 @@ class TreeNode:
             for child in self.children:
                 child.print_children(level + 1)
 
+    def find_subdirectories_part1(self):
+        dir_sizes = 0
+        if self.is_dir:
+            for child in self.children:
+                if child.is_dir and child.get_size() <= 100000:
+                    dir_sizes += child.get_size() + child.find_subdirectories_part1()
+                else:
+                    dir_sizes += child.find_subdirectories_part1()
+        return dir_sizes
+
+    def find_subdirectories_part2(self, min_size):
+        dir_sizes = []
+        if self.is_dir:
+            for child in self.children:
+                if child.is_dir and child.get_size() >= min_size:
+                    dir_sizes += [child.get_size()] + child.find_subdirectories_part2(
+                        min_size
+                    )
+                else:
+                    dir_sizes += child.find_subdirectories_part2(min_size)
+        return dir_sizes
+
 
 class Tree:
     def __init__(self) -> None:
@@ -49,17 +71,46 @@ class Tree:
         self.current.add_child(child)
 
 
+def create_tree(input: str) -> Tree:
+    tree = Tree()
+
+    lines = parse_input(input)
+
+    while len(lines) > 0:
+        line = lines.pop(0)
+        if line == "$ cd /":
+            tree.reset_to_root()
+        elif line == "$ ls":
+            while len(lines) > 0 and "$" not in lines[0]:
+                line = lines.pop(0)
+                size, name = line.split(" ")
+                if size.isdigit():
+                    new_node = TreeNode(is_dir=False, name=name, size=int(size))
+                else:
+                    new_node = TreeNode(is_dir=True, name=name)
+                tree.add_new_child(new_node)
+        elif line == "$ cd ..":
+            tree.go_up_one_level()
+        elif "$ cd" in line:
+            _, _, name = line.split(" ")
+            tree.go_to_child(name)
+
+    return tree
+
+
 def part1(input: str) -> int:
-
-    # https://github.com/GalaxyInfernoCodes/Advent_Of_Code_2022/blob/main/Day07_Python/AdventOfCode_Day07_Py.ipynb
-    for line in parse_input(input):
-        print(line)
-
-    return -1
+    tree = create_tree(input)
+    return tree.root.find_subdirectories_part1()
 
 
 def part2(input: str) -> int:
-    return -1
+    tree = create_tree(input)
+    
+    total_space = 70000000
+    space_needed = 30000000
+    current_empty_space = total_space - tree.root.get_size()
+    possible_dirs = tree.root.find_subdirectories_part2(space_needed - current_empty_space)
+    return min(possible_dirs)
 
 
 def parse_input(input: str) -> list[str]:
@@ -71,8 +122,8 @@ def parse_input(input: str) -> list[str]:
 
 def main():
     puzzle_input_path = "2022/day07/input.txt"
-    print(f"AoC2022 Day5, Part1 solution is: {part1(input=puzzle_input_path)}")
-    print(f"AoC2022 Day5, Part2 solution is: {part2(input=puzzle_input_path)}")
+    print(f"AoC2022 Day7, Part1 solution is: {part1(input=puzzle_input_path)}")
+    print(f"AoC2022 Day7, Part2 solution is: {part2(input=puzzle_input_path)}")
 
 
 if __name__ == "__main__":
