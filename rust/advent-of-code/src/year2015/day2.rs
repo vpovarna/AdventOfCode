@@ -2,6 +2,39 @@ use crate::utils::read_lines;
 
 use itertools::Itertools;
 
+#[derive(Debug)]
+struct Present {
+    l: usize,
+    w: usize,
+    h: usize,
+}
+
+impl Present {
+    pub fn new(l: usize, w: usize, h: usize) -> Present {
+        Present { l, w, h }
+    }
+
+    pub fn calculate_surface_area(self: &Self) -> usize {
+        let a = self.l * self.w;
+        let b = self.l * self.h;
+        let c = self.h * self.w;
+
+        let min_area = (a.min(b)).min(c);
+
+        2 * (a + b + c) + min_area
+    }
+
+    pub fn calculate_ribbon_needed_surface(self: &Self) -> usize {
+        let ribbon_size = [self.l, self.w, self.h]
+            .into_iter()
+            .sorted()
+            .take(2)
+            .sum::<usize>();
+
+        (self.l * self.w * self.h) + 2 * ribbon_size
+    }
+}
+
 pub fn solve() {
     let input_file_path = String::from("src/year2015/resources/day2.txt");
 
@@ -18,40 +51,23 @@ pub fn solve() {
 fn part1(input: &String) -> usize {
     parse_input(input)
         .iter()
-        .map(calculate_surface_area)
-        .fold(0, |t, surface_area| t + surface_area)
+        .map(|present| present.calculate_surface_area())
+        .sum()
 }
 
 fn part2(input: &String) -> usize {
     parse_input(input)
-        .iter()
-        .map(calculate_ribbon_needed_surface)
-        .fold(0, |t, surface_area| t + surface_area)
+    .iter()
+    .map(|present| present.calculate_ribbon_needed_surface())
+    .sum()
 }
 
-fn calculate_surface_area(sizes: &(usize, usize, usize)) -> usize {
-    let (l, w, h) = sizes;
-    let a = l * w;
-    let b = l * h;
-    let c = w * h;
-
-    let min_area = (a.min(b)).min(c);
-
-    2 * (a + b + c) + min_area
-}
-
-fn calculate_ribbon_needed_surface(sizes: &(usize, usize, usize)) -> usize {
-    let (l, w, h) = sizes;
-    let ribbon_size = [l, w, h].into_iter().sorted().take(2).sum::<usize>();
-
-    (l * w * h) + 2 * ribbon_size
-}
-
-fn parse_input(input: &String) -> Vec<(usize, usize, usize)> {
+fn parse_input(input: &String) -> Vec<Present> {
     read_lines(input)
         .iter()
-        .map(parse_line)
-        .map(|sizes: Vec<usize>| (sizes[0], sizes[1], sizes[2])) // TODO: try struct impl
+        .map(|line| parse_line(line))
+        .filter(|dim| dim.len() == 3)
+        .map(|dim| Present::new(dim[0], dim[1], dim[2]))
         .collect_vec()
 }
 
