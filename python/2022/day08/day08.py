@@ -28,7 +28,38 @@ def part1(input: str) -> int:
 
 
 def part2(input: str) -> int:
-    return -1
+    lines = parse_input(input)
+    grid = transform_to_grid(lines)
+
+    n = len(grid)
+    m = len(grid[0])
+
+    grid = np.array(grid)
+    ans = 0
+
+    directions = [[0, 1], [0, -1], [1, 0], [-1, 0]]
+
+    for i in range(n):
+        for j in range(m):
+            h = grid[i, j]
+            score = 1
+
+            for dir_i, dir_j in directions:
+                new_i, new_j = i + dir_i, j + dir_j
+                dist = 0
+
+                while (0 <= new_i < n and 0 <= new_j < m) and grid[new_i, new_j] < h:
+                    dist += 1
+                    new_i, new_j = new_i + dir_i, new_j + dir_j
+
+                    if (0 <= new_i < n and 0 <= new_j < m) and grid[new_i, new_j] >= h:
+                        dist += 1
+
+                score *= dist
+
+            ans = max(ans, score)
+
+    return ans
 
 
 def parse_input(input: str) -> list[int]:
