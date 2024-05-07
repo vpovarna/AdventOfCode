@@ -28,9 +28,14 @@ def part1(input: str) -> int:
         dx, dy = directions[op]
 
         for _ in range(amount):
+            # update head value
             hx += dx
             hy += dy
+            
+            # move tail position
             tx, ty = move(hx, hy, tx, ty)
+            
+            # update tail_visited with the current position
             tail_visited.add((tx, ty))
 
     return len(tail_visited)
