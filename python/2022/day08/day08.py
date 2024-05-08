@@ -73,8 +73,8 @@ def transform_to_grid(lines: list[int]) -> list[int]:
 
 def main():
     puzzle_input_path = "2022/day08/input.txt"
-    print(f"AoC2022 Day7, Part1 solution is: {part1(input=puzzle_input_path)}")
-    print(f"AoC2022 Day7, Part2 solution is: {part2(input=puzzle_input_path)}")
+    print(f"AoC2022 Day8, Part1 solution is: {part1(input=puzzle_input_path)}")
+    print(f"AoC2022 Day8, Part2 solution is: {part2(input=puzzle_input_path)}")
 
 
 if __name__ == "__main__":
