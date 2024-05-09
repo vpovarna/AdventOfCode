@@ -16,13 +16,25 @@ class Monkey:
 
 def part1(input: str) -> int:
     monkeys = parse_input(input)
+    return run(monkeys=monkeys, iterations=20, fn=lambda x: x // 3)
 
-    for i in range(20):
-        # print(f"Round: {i}")
+
+def part2(input: str) -> int:
+    monkeys = parse_input(input)
+
+    mod_value = 1
+    for monkey in monkeys:
+        mod_value *= monkey.test_factor
+
+    return run(monkeys=monkeys, iterations=10000, fn=lambda x: x % mod_value)
+
+
+def run(monkeys: list[Monkey], iterations: int, fn) -> int:
+    for _ in range(iterations):
         for monkey in monkeys:
             for item in monkey.items:
                 item = eval(monkey.operation)(item)
-                item //= 3
+                item = fn(item)
                 if item % monkey.test_factor == 0:
                     monkeys[monkey.true_monkey_target].items.append(item)
                 else:
@@ -36,10 +48,6 @@ def part1(input: str) -> int:
     items_count.sort()
     ans = items_count[-1] * items_count[-2]
     return ans
-
-
-def part2(input: str) -> int:
-    return -1
 
 
 def parse_input(input: str) -> list[Monkey]:
@@ -61,9 +69,9 @@ def parse_input(input: str) -> list[Monkey]:
             true_monkey_target=monkey_true_id,
             false_monkey_target=monkey_false_id,
         )
-        
+
         monkeys.append(monkey)
-            
+
     return monkeys
 
 
