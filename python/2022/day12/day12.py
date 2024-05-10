@@ -14,15 +14,15 @@ def part1(input: str):
             if grid[i][j] == "E":
                 end = i, j
 
-    # Dijkstra's
+    # BFS
     q = deque()
     q.append((0, start[0], start[1]))
-    
-    visited={(start[0], start[1])}
+
+    visited = {(start[0], start[1])}
 
     while q:
         steps, i, j = q.popleft()
-        for ii, jj in [(-1,0), (1, 0), (0, -1), (0,1)]:
+        for ii, jj in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
             new_i, new_j = ii + i, jj + j
             # out of bound check
             if new_i < 0 or new_j < 0 or new_i >= n or new_j >= m:
@@ -30,16 +30,57 @@ def part1(input: str):
             # already visited
             if (new_i, new_j) in visited:
                 continue
-            # compare height 
+            # compare height
             if height(grid[new_i][new_j]) - height(grid[i][j]) > 1:
                 continue
             # check if we reach the end.
             if new_i == end[0] and new_j == end[1]:
                 return steps + 1
-            
+
             visited.add((new_i, new_j))
             q.append((steps + 1, new_i, new_j))
-    
+
+    return -1
+
+
+def part2(input: str):
+    grid = get_grid(parse_input(input))
+    n = len(grid)
+    m = len(grid[0])
+
+    ## Go backwards, from E to the first a
+    for i in range(n):
+        for j in range(m):
+            if grid[i][j] == "S":
+                grid[i][j] = "a"
+            if grid[i][j] == "E":
+                start = i, j
+
+    # BFS
+    q = deque()
+    q.append((0, start[0], start[1]))
+    visited = {(start[0], start[1])}
+
+    while q:
+        steps, i, j = q.popleft()
+        for ii, jj in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
+            new_i, new_j = ii + i, jj + j
+            # out of bound check
+            if new_i < 0 or new_j < 0 or new_i >= n or new_j >= m:
+                continue
+            # already visited
+            if (new_i, new_j) in visited:
+                continue
+            # compare height
+            if height(grid[new_i][new_j]) - height(grid[i][j]) < -1:
+                continue
+            # check if we reach the end.
+            if grid[new_i][new_j] == "a":
+                return steps + 1
+
+            visited.add((new_i, new_j))
+            q.append((steps + 1, new_i, new_j))
+
     return -1
 
 
@@ -50,9 +91,6 @@ def height(s: str):
         return 0
     if s == "E":
         return 25
-
-def part2(input: str):
-    return -1
 
 
 def parse_input(input: str) -> list[str]:
