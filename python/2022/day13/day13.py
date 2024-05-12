@@ -1,6 +1,3 @@
-def compare(a: str, b: str) -> int:
-    return -1
-
 
 def part1(input: str) -> int:
     parts = parse_input(input)
@@ -10,7 +7,6 @@ def part1(input: str) -> int:
     for i, block in enumerate(parts):
         a, b = map(eval, block.split("\n"))
         if compare(a, b) == 1:
-            print(i)
             ans += i + 1
 
     return ans
@@ -19,6 +15,41 @@ def part1(input: str) -> int:
 def part2(input: str) -> int:
     return -1
 
+
+def compare(a, b) -> int:
+    if isinstance(a, list) and isinstance(b, int):
+        b = [b]
+    
+    if isinstance(a, int) and isinstance(b, list):
+        a = [a]
+    
+    if isinstance(a, int) and isinstance(b, int):
+        if a < b:
+            return 1
+        if a == b:
+            return 0
+        return -1
+
+    i = 0
+    j = 0
+    
+    while i < len(a) and j < len(b):
+        x = compare(a[i], b[j])
+        if x == 1:
+            return 1
+        if x == -1:
+            return -1
+            
+        i += 1
+        j += 1
+
+    if i == len(a):
+        if j == len(b):
+            return 0
+        return 1 # a ended first
+
+    # a did't end, b is shorter
+    return -1
 
 def parse_input(input: str) -> list[str]:
     with open(input) as fn:
