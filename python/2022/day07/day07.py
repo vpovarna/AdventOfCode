@@ -105,11 +105,13 @@ def part1(input: str) -> int:
 
 def part2(input: str) -> int:
     tree = create_tree(input)
-    
+
     total_space = 70000000
     space_needed = 30000000
     current_empty_space = total_space - tree.root.get_size()
-    possible_dirs = tree.root.find_subdirectories_part2(space_needed - current_empty_space)
+    possible_dirs = tree.root.find_subdirectories_part2(
+        space_needed - current_empty_space
+    )
     return min(possible_dirs)
 
 
