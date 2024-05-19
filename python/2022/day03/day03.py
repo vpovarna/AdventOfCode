@@ -38,7 +38,7 @@ def parse_input(input: str) -> List[str]:
 
 
 def main():
-    puzzle_input_path = '2022/day03/input.txt'
+    puzzle_input_path = "2022/day03/input.txt"
     print(f"AoC2022 Day3, Part1 solution is: {part1(puzzle_input_path)}")
     print(f"AoC2022 Day3, Part2 solution is: {part2(puzzle_input_path)}")
 

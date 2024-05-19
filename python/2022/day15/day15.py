@@ -7,6 +7,7 @@ class Point:
     x: int
     y: int
 
+
 def manhattan_distance(point1, point2) -> int:
     return abs(point1.x - point2.x) + abs(point1.y - point2.y)
     # return abs(a[0] - b[0]) + abs(a[1] - b[1])
@@ -14,7 +15,7 @@ def manhattan_distance(point1, point2) -> int:
 
 def part1(input: str) -> int:
     lines = parse_input(input)
-    
+
     sensors, beacons = get_input_coordinates(lines)
 
     N = len(sensors)
@@ -24,33 +25,33 @@ def part1(input: str) -> int:
 
     Y = 2000000
     intervals = []
-    
+
     for i, s in enumerate(sensors):
         dx = dists[i] - abs(s.y - Y)
         if dx <= 0:
             continue
         intervals.append((s.x - dx, s.x + dx))
-    
+
     # Add interval that are on the Y line
     allowed_x = set()
     for beacon in beacons:
         if beacon.y == Y:
             allowed_x.add(beacon.x)
-        
+
     min_x = min([i[0] for i in intervals])
     max_x = max([i[1] for i in intervals])
 
     ans = 0
-    
+
     for x in range(min_x, max_x + 1):
         if x in allowed_x:
             continue
-            
+
         for left, right in intervals:
             if left <= x <= right:
-                ans +=1
+                ans += 1
                 break
-    
+
     return ans
 
 
@@ -59,6 +60,7 @@ def part2(input: str) -> int:
 
 
 InputCoordinates: TypeAlias = tuple[list[Point], list[Point]]
+
 
 def get_input_coordinates(lines: list[str]) -> InputCoordinates:
     sensors = []

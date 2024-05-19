@@ -3,21 +3,21 @@ interesting_points = [20, 60, 100, 140, 180, 220]
 
 def part1(input: str) -> int:
     lines = parse_input(input)
-    
+
     ans = 0
-    
+
     X = 1
     op = 0
-    
+
     for line in lines:
         parts = line.split(" ")
         if parts[0] == "noop":
-          op += 1
-          ans += update_ans(op, X)
+            op += 1
+            ans += update_ans(op, X)
 
         elif parts[0] == "addx":
             value = int(parts[1])
-            
+
             op += 1
             ans += update_ans(op, X)
 
@@ -25,8 +25,9 @@ def part1(input: str) -> int:
             ans += update_ans(op, X)
 
             X += value
-    
+
     return ans
+
 
 def update_ans(op: int, X: int) -> int:
     global interesting_points
@@ -35,29 +36,28 @@ def update_ans(op: int, X: int) -> int:
 
 def part2(input: str):
     lines = parse_input(input)
-        
+
     X = 1
     op = 0
-    
+
     crt = [1] * 241
-    
-    
+
     for line in lines:
         parts = line.split(" ")
         if parts[0] == "noop":
-          op += 1
-          crt[op] = X
+            op += 1
+            crt[op] = X
 
         elif parts[0] == "addx":
             value = int(parts[1])
-            
+
             op += 1
             crt[op] = X
             X += value
 
             op += 1
             crt[op] = X
-    
+
     ans = [[None] * 40 for _ in range(6)]
 
     for row in range(6):
@@ -67,7 +67,6 @@ def part2(input: str):
                 ans[row][col] = "##"
             else:
                 ans[row][col] = "  "
-
 
     for row in ans:
         print("".join(row))
