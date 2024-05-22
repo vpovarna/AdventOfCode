@@ -121,7 +121,7 @@ def get_input_coordinates(lines: list[str]) -> InputCoordinates:
         beacon_point = Point(bx, by)
         beacons.append(beacon_point)
 
-    return (sensors, beacons)
+    return sensors, beacons
 
 
 def parse_input(input: str) -> list[str]:
