@@ -10,8 +10,8 @@ class Node:
         )
 
 
-def part1(input_str: str) -> int:
-    nodes = parse_input(input_str)
+def run(input_str: str, cycles: int, decryption_key: int) -> int:
+    nodes = [Node(int(x) * decryption_key) for x in parse_input(input_str)]
 
     for i in range(len(nodes)):
         nodes[i].right = nodes[(i + 1) % len(nodes)]
@@ -19,6 +19,16 @@ def part1(input_str: str) -> int:
 
     m = len(nodes) - 1
 
+    for _ in range(cycles):
+        zeroNode = mix_list(nodes, m)
+
+    ans = 0
+    ans = calculate_groove_coordinates(zeroNode)
+
+    return ans
+
+
+def mix_list(nodes, m) -> Node:
     for node in nodes:
         if node.n == 0:
             zeroNode = node
@@ -29,10 +39,10 @@ def part1(input_str: str) -> int:
                 tmpNode = tmpNode.right
             if node == tmpNode:
                 continue
-            # remove the current node
+                # remove the current node
             node.right.left = node.left
             node.left.right = node.right
-            
+
             tmpNode.right.left = node
             node.right = tmpNode.right
             tmpNode.right = node
@@ -42,40 +52,41 @@ def part1(input_str: str) -> int:
                 tmpNode = tmpNode.left
             if node == tmpNode:
                 continue
-            # remove the current node
+                # remove the current node
             node.left.right = node.right
             node.right.left = node.left
-            
+
             tmpNode.left.right = node
             node.left = tmpNode.left
             tmpNode.left = node
             node.right = tmpNode
 
+    return zeroNode
+
+
+def calculate_groove_coordinates(zeroNode: Node) -> int:
     ans = 0
 
     for _ in range(3):
         for _ in range(1000):
             zeroNode = zeroNode.right
         ans += zeroNode.n
-
-
     return ans
 
-def part2(input_str: str) -> int:
-    return -1
 
-
-def parse_input(input_str: str) -> list[Node]:
+def parse_input(input_str: str) -> list[str]:
     with open(input_str) as fn:
-        lines = fn.read().strip().splitlines()
-
-    return [Node(int(x)) for x in lines]
+        return fn.read().strip().splitlines()
 
 
 def main():
     puzzle_input_path = "2022/day20/input.txt"
-    print(f"AoC2022 Day20, Part1 solution is: {part1(input_str=puzzle_input_path)}")
-    print(f"AoC2022 Day20, Part2 solution is: {part2(input_str=puzzle_input_path)}")
+    print(
+        f"AoC2022 Day20, Part1 solution is: {run(input_str=puzzle_input_path, cycles=1, decryption_key=1)}"
+    )
+    print(
+        f"AoC2022 Day20, Part2 solution is: {run(input_str=puzzle_input_path, cycles=10, decryption_key=811589153)}"
+    )
 
 
 if __name__ == "__main__":
