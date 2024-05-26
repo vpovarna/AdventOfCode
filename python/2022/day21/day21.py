@@ -1,3 +1,13 @@
+import sympy
+
+OPS = {
+    "+": lambda x, y: x + y,
+    "-": lambda x, y: x - y,
+    "*": lambda x, y: x * y,
+    "/": lambda x, y: x / y,
+}
+
+
 def part1(input_str: str) -> int:
     lines = parse_input(input_str)
 
@@ -9,8 +19,8 @@ def part1(input_str: str) -> int:
         else:
             monkeyA, operation, monkeyB = expression.split(" ")
             if monkeyA in monkeys and monkeyB in monkeys:
-                monkeys[monkey_name] = eval(
-                    f"{monkeys[monkeyA]} {operation} {monkeys[monkeyB]}"
+                monkeys[monkey_name] = OPS[operation](
+                    monkeys[monkeyA], monkeys[monkeyB]
                 )
             else:
                 lines.append(line)
@@ -19,6 +29,29 @@ def part1(input_str: str) -> int:
 
 
 def part2(input_str: str) -> int:
+    lines = parse_input(input_str)
+
+    monkeys = {"humn": sympy.Symbol("x")}
+
+    for line in lines:
+        monkey_name, expression = line.split(": ")
+        if monkey_name in monkeys:
+            continue
+
+        if expression.isdigit():
+            monkeys[monkey_name] = sympy.Integer(expression)
+
+        else:
+            monkeyA, operation, monkeyB = expression.split(" ")
+            if monkeyA in monkeys and monkeyB in monkeys:
+                if monkey_name == "root":
+                    return sympy.solve(monkeys[monkeyA] - monkeys[monkeyB])[0]
+                monkeys[monkey_name] = OPS[operation](
+                    monkeys[monkeyA], monkeys[monkeyB]
+                )
+            else:
+                lines.append(line)
+
     return -1
 
 
