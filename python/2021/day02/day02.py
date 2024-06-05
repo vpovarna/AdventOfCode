@@ -23,7 +23,25 @@ def part1(puzzle_input_path: str) -> int:
 
 
 def part2(puzzle_input_path: str) -> int:
-    return -1
+    lines = read_input(input_file=puzzle_input_path)
+    horizontal, depth, aim = 0, 0, 0
+
+    for line in lines:
+        direction, value = line.split(" ")
+        value = int(value)
+
+        match direction:
+            case "forward":
+                horizontal += value
+                depth += aim * value
+            case "up":
+                aim -= value
+            case "down":
+                aim += value
+            case _:
+                raise Exception("Unsupported direction")
+
+    return horizontal * depth
 
 
 def read_input(input_file: str) -> List[str]:
