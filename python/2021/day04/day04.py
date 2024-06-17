@@ -2,31 +2,33 @@ import re
 from dataclasses import dataclass
 from typing import List
 
+BOARD_SIZE = 5
+
 
 @dataclass
 class Grid:
     def __init__(self, raw_board: List[List[int]]):
         self.grid = [
             [
-                [raw_board[i][j], False] for j in range(5)
+                [raw_board[i][j], False] for j in range(BOARD_SIZE)
             ]
-            for i in range(5)
+            for i in range(BOARD_SIZE)
         ]
 
     def mark_number(self, number: int) -> None:
-        for i in range(5):
-            for j in range(5):
+        for i in range(BOARD_SIZE):
+            for j in range(BOARD_SIZE):
                 t = self.grid[i][j]
                 if t[0] == number:
                     t[1] = True
 
-    def detect_win(self, number: int):
-        for row in range(5):
-            if all([self.grid[row][i][1] for i in range(5)]):
+    def detect_win(self):
+        for row in range(BOARD_SIZE):
+            if all([self.grid[row][i][1] for i in range(BOARD_SIZE)]):
                 return True
 
-        for col in range(5):
-            if all([self.grid[i][col][1] for i in range(5)]):
+        for col in range(BOARD_SIZE):
+            if all([self.grid[i][col][1] for i in range(BOARD_SIZE)]):
                 return True
         return False
 
