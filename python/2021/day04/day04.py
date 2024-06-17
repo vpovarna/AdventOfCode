@@ -5,8 +5,30 @@ from typing import List
 
 @dataclass
 class Grid:
-    def __init__(self, raw_grid: str):
-        self.grid = parse_board(raw_grid)
+    def __init__(self, raw_board: List[List[int]]):
+        self.grid = [
+            [
+                [raw_board[i][j], False] for j in range(5)
+            ]
+            for i in range(5)
+        ]
+
+    def mark_number(self, number: int) -> None:
+        for i in range(5):
+            for j in range(5):
+                t = self.grid[i][j]
+                if t[0] == number:
+                    t[1] = True
+
+    def detect_win(self, number: int):
+        for row in range(5):
+            if all([self.grid[row][i][1] for i in range(5)]):
+                return True
+
+        for col in range(5):
+            if all([self.grid[i][col][1] for i in range(5)]):
+                return True
+        return False
 
     def __repr__(self):
         """
@@ -26,7 +48,8 @@ def part1(puzzle_input_path: str) -> int:
     numbers = blocks[0]
     row_grids = blocks[1:]
 
-    grid = Grid(row_grids[0])
+    grid = Grid(parse_board(row_grids[0]))
+    grid.mark_number(19)
     print(grid.__repr__())
     return -1
 
