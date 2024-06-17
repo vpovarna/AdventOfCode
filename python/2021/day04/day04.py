@@ -22,7 +22,7 @@ class Grid:
                 if t[0] == number:
                     t[1] = True
 
-    def detect_win(self):
+    def detect_win(self) -> bool:
         for row in range(BOARD_SIZE):
             if all([self.grid[row][i][1] for i in range(BOARD_SIZE)]):
                 return True
