@@ -1,3 +1,4 @@
+import re
 from dataclasses import dataclass
 from typing import List
 
@@ -5,16 +6,19 @@ from typing import List
 @dataclass
 class Grid:
     def __init__(self, raw_grid: str):
-        self.grid = self._build_grid(raw_grid)
-
-    @staticmethod
-    def _build_grid(raw_grid: str) -> list[list[str]]:
-        grid_lines = [for line in raw_grid.strip().split("\n")]
-        return [ch.strip().split(" ") for ch in grid_lines]
+        self.grid = parse_board(raw_grid)
 
     def __repr__(self):
+        """
+        For debugging purpose
+        """
         for grid_lines in self.grid:
             print(grid_lines)
+
+
+def parse_board(raw_grid: str) -> list[list[int]]:
+    lines = raw_grid.strip().split("\n")
+    return [[int(i) for i in re.split(" +", line.strip())] for line in lines]
 
 
 def part1(puzzle_input_path: str) -> int:
