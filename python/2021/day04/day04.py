@@ -6,6 +6,8 @@ from typing import List
 BOARD_SIZE = 5
 
 
+# Interview problem proposal
+
 @dataclass
 class Grid:
     def __init__(self, raw_board: List[List[int]]):
