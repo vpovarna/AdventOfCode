@@ -1,4 +1,5 @@
 import re
+from collections import deque
 from dataclasses import dataclass
 from typing import List
 
@@ -69,6 +70,25 @@ def part1(puzzle_input_path: str) -> int:
 
 
 def part2(puzzle_input_path: str) -> int:
+    blocks = read_input(puzzle_input_path)
+    numbers = [int(number) for number in blocks[0].strip().split(",")]
+
+    row_grids = blocks[1:]
+    grids = deque([Grid(parse_board(grid)) for grid in row_grids])
+
+    for number in numbers:
+        # removing wining boards
+        if len(grids) > 1:
+            for _ in range(len(grids)):
+                current_grid = grids.popleft()
+                current_grid.mark_number(number)
+                if not current_grid.detect_win():
+                    grids.append(current_grid)
+        else:
+            grids[0].mark_number(number)
+            if grids[0].detect_win():
+                return grids[0].calculate_score() * number
+
     return -1
 
 
