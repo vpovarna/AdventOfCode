@@ -32,6 +32,13 @@ class Grid:
                 return True
         return False
 
+    def calculate_score(self):
+        score = 0
+        for i in range(BOARD_SIZE):
+            for j in range(BOARD_SIZE):
+                score += self.grid[i][j][0] if not self.grid[i][j][1] else 0
+        return score
+
     def __repr__(self):
         """
         For debugging purpose
@@ -47,12 +54,17 @@ def parse_board(raw_grid: str) -> list[list[int]]:
 
 def part1(puzzle_input_path: str) -> int:
     blocks = read_input(puzzle_input_path)
-    numbers = blocks[0]
-    row_grids = blocks[1:]
+    numbers = [int(number) for number in blocks[0].strip().split(",")]
 
-    grid = Grid(parse_board(row_grids[0]))
-    grid.mark_number(19)
-    print(grid.__repr__())
+    row_grids = blocks[1:]
+    grids = [Grid(parse_board(grid)) for grid in row_grids]
+
+    for number in numbers:
+        for grid in grids:
+            grid.mark_number(number)
+            if grid.detect_win():
+                return grid.calculate_score() * number
+
     return -1
 
 
