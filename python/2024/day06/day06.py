@@ -78,7 +78,6 @@ def part2() -> int:
             if is_loop(x, y, new_grid, 'N'):
                 number_of_loops += 1
 
-
     return number_of_loops
 
 
