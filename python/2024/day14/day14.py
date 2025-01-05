@@ -24,18 +24,8 @@ with open("input.txt", 'r') as f:
     lines = [parse_line(line) for line in f.read().split("\n")]
 
 
-def get_final_positions():
-    positions = []
-    for line in lines:
-        i, j, vi, vj = line
-        i = (i + nr_of_moves * vi) % WIDTH
-        j = (j + nr_of_moves * vj) % HEIGHT
-        positions.append((i, j))
-    return positions
-
-
 def part1() -> int:
-    positions = get_final_positions()
+    positions = get_final_positions(seconds=nr_of_moves)
 
     counts = []
     for ((q1_start, q1_end), (q2_start, q2_end)) in QUADRANTS:
@@ -56,34 +46,42 @@ def part2() -> int:
     best_iteration = 0
 
     for second in range(WIDTH * HEIGHT):
-        positions = []
-        for i, j, vi, vj in lines:
-            new_i = (i + second * vi) % WIDTH
-            new_j = (j + second * vj) % HEIGHT
-            positions.append((new_i, new_j))
-
-        tl = bl = tr = br = 0
-
-        for px, py in positions:
-            if px == M or py == N:
-                continue
-            if px < M:
-                if py < N:
-                    tl += 1
-                else:
-                    bl += 1
-            else:
-                if py < M:
-                    tr += 1
-                else:
-                    br += 1
-
-        sf = tl * bl * tr * br
+        positions = get_final_positions(seconds=second)
+        sf = calculate_result(positions)
         # print(sf, second)
         if sf < min_sf:
             min_sf = sf
             best_iteration = second
     return best_iteration
+
+
+def get_final_positions(seconds: int):
+    positions = []
+    for line in lines:
+        i, j, vi, vj = line
+        i = (i + seconds * vi) % WIDTH
+        j = (j + seconds * vj) % HEIGHT
+        positions.append((i, j))
+    return positions
+
+
+def calculate_result(positions):
+    tl = bl = tr = br = 0
+    for px, py in positions:
+        if px == M or py == N:
+            continue
+        if px < M:
+            if py < N:
+                tl += 1
+            else:
+                bl += 1
+        else:
+            if py < M:
+                tr += 1
+            else:
+                br += 1
+    sf = tl * bl * tr * br
+    return sf
 
 
 if __name__ == '__main__':
