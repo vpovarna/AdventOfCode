@@ -7,10 +7,9 @@ STARTING_POINT = (8, 1)
 def part1() -> int:
     wire1_instructions, wire2_instructions = __parse_input()
 
-    visited_points_wire1 = get_wire_visited_points(instructions=wire1_instructions)
-    visited_points_wire2 = get_wire_visited_points(instructions=wire2_instructions)
+    crossing_points, visited_points_wire1_with_steps, visited_points_wire2_with_steps = (
+        __get_crossing_points_coordinates(wire1_instructions, wire2_instructions))
 
-    crossing_points = visited_points_wire1 & visited_points_wire2 - {STARTING_POINT}
     min_manhattan_distances = float("inf")
     for (c1, c2) in crossing_points:
         (x, y) = STARTING_POINT
@@ -21,35 +20,50 @@ def part1() -> int:
 
 
 def part2() -> int:
-    return 1
+    wire1_instructions, wire2_instructions = __parse_input()
+
+    crossing_points, visited_points_wire1_with_steps, visited_points_wire2_with_steps = (
+        __get_crossing_points_coordinates(wire1_instructions, wire2_instructions))
+
+    min_steps = float("inf")
+    for (i, j) in crossing_points:
+        steps = visited_points_wire1_with_steps.get((i, j)) + visited_points_wire2_with_steps.get((i, j))
+        min_steps = min(min_steps, steps)
+
+    return min_steps
 
 
-def get_wire_visited_points(instructions: list[str]):
+def __get_crossing_points_coordinates(wire1_instructions, wire2_instructions):
+    visited_points_wire1_with_steps = get_wire_visited_points_with_steps(instructions=wire1_instructions)
+    visited_points_wire2_with_steps = get_wire_visited_points_with_steps(instructions=wire2_instructions)
+    crossing_points = visited_points_wire1_with_steps.keys() & visited_points_wire2_with_steps.keys() - {STARTING_POINT}
+    return crossing_points, visited_points_wire1_with_steps, visited_points_wire2_with_steps
+
+
+def get_wire_visited_points_with_steps(instructions: list[str]) -> dict:
     x, y = STARTING_POINT
-    visited_points_wire1 = set()
-    visited_points_wire1.add((x, y))
+    visited_points_wire = {(x, y): 0}
+    count = 1
+
+    # Direction mapping: (dx, dy)
+    directions = {
+        "R": (0, 1),
+        "U": (-1, 0),
+        "L": (0, -1),
+        "D": (1, 0),
+    }
+
     for instruction in instructions:
         direction, steps = instruction[0], int(instruction[1:])
-        match direction:
-            case "R":
-                for i in range(0, steps):
-                    y = y + 1
-                    visited_points_wire1.add((x, y))
-            case "U":
-                for i in range(0, steps):
-                    x = x - 1
-                    visited_points_wire1.add((x, y))
-            case "L":
-                for i in range(0, steps):
-                    y = y - 1
-                    visited_points_wire1.add((x, y))
-            case "D":
-                for i in range(0, steps):
-                    x = x + 1
-                    visited_points_wire1.add((x, y))
-            case _:
-                print("something else")
-    return visited_points_wire1
+        dx, dy = directions.get(direction, (0, 0))
+
+        for _ in range(steps):
+            x += dx
+            y += dy
+            visited_points_wire[(x, y)] = count
+            count += 1
+
+    return visited_points_wire
 
 
 def __print_grid(visited_points: set) -> None:
@@ -74,3 +88,4 @@ def __parse_input() -> (list[str], list[str]):
 
 if __name__ == '__main__':
     print(f"Part1 solution is: {part1()}")
+    print(f"Part2 solution is: {part2()}")
