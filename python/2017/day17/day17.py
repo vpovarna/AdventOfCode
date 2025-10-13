@@ -1,5 +1,6 @@
 INPUT_STEPS = 371
 
+
 def part1() -> int:
     arr = [0]
     start_index = 0
@@ -21,6 +22,7 @@ def part2() -> int:
             value_after_zero = i
 
     return value_after_zero
+
 
 def vector_update(arr: list[int], start_index: int, value: int) -> (list[int], int):
     for i in range(0, INPUT_STEPS):
