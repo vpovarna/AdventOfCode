@@ -1,63 +1,65 @@
-from collections import deque
+import sys
+import re
+import heapq
+from collections import defaultdict, Counter, deque
 
-with open("input.txt", 'r') as f:
-    grid = [list(line.strip()) for line in f.read().split("\n")]
+DIRS = [(-1, 0), (0, 1), (1, 0), (0, -1)]  # up right down left
+infile = sys.argv[1] if len(sys.argv) >= 2 else '12.in'
+p1 = 0
+p2 = 0
+D = open("input.txt").read().strip()
 
-rows = len(grid)
-cols = len(grid[0])
+G = D.split('\n')
+R = len(G)
+C = len(G[0])
 
-
-def part1() -> int:
-    regions = []
-    seen = set()
-
-    for r in range(rows):
-        for c in range(cols):
-
-            if (r, c) in seen:
+SEEN = set()
+for r in range(R):
+    for c in range(C):
+        if (r, c) in SEEN:
+            continue
+        Q = deque([(r, c)])
+        area = 0
+        perim = 0
+        PERIM = dict()
+        while Q:
+            r2, c2 = Q.popleft()
+            if (r2, c2) in SEEN:
                 continue
-            seen.add((r, c))
-            region = {(r, c)}
-            q = deque([(r, c)])
+            SEEN.add((r2, c2))
+            area += 1
+            for dr, dc in DIRS:
+                rr = r2 + dr
+                cc = c2 + dc
+                if 0 <= rr < R and 0 <= cc < C and G[rr][cc] == G[r2][c2]:
+                    Q.append((rr, cc))
+                else:
+                    perim += 1
+                    if (dr, dc) not in PERIM:
+                        PERIM[(dr, dc)] = set()
+                    # side = same direction, adjacent
+                    PERIM[(dr, dc)].add((r2, c2))
 
-            crop = grid[r][c]
+        sides = 0
+        for k, vs in PERIM.items():
+            SEEN_PERIM = set()
+            old_sides = sides
+            for (pr, pc) in vs:
+                if (pr, pc) not in SEEN_PERIM:
+                    sides += 1
+                    Q = deque([(pr, pc)])
+                    while Q:
+                        r2, c2 = Q.popleft()
+                        if (r2, c2) in SEEN_PERIM:
+                            continue
+                        SEEN_PERIM.add((r2, c2))
+                        for dr, dc in DIRS:
+                            rr, cc = r2 + dr, c2 + dc
+                            if (rr, cc) in vs:
+                                Q.append((rr, cc))
 
-            while q:
-                cr, cc = q.popleft()
-                for nr, nc in [(cr - 1, cc), (cr + 1, cc), (cr, cc - 1), (cr, cc + 1)]:
-                    if nr < 0 or nc < 0 or nr >= rows or nc >= cols:
-                        continue
-                    if grid[nr][nc] != crop:
-                        continue
-                    if (nr, nc) in region:
-                        continue
+        p1 += area * perim
+        p2 += area * sides
 
-                    region.add((nr, nc))
-                    q.append((nr, nc))
-            seen |= region
-            regions.append(region)
-
-    total = 0
-
-    for region in regions:
-        area = len(region)
-        perimeter = calculate_perimeter(region)
-
-        total += area * perimeter
-
-    return total
-
-
-def calculate_perimeter(region: set) -> int:
-    output = 0
-
-    for (r, c) in region:
-        output += 4
-        for nr, nc in [(r + 1, c), (r - 1, c), (r, c + 1), (r, c - 1)]:
-            if (nr, nc) in region:
-                output -= 1
-    return output
-
-
-if __name__ == '__main__':
-    print(f"Part1:{part1()}")
+print(p1)
+print(p2)
