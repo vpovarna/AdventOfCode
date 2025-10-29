@@ -17,8 +17,39 @@ def part1() -> int:
 
 
 def part2() -> str:
-
+    lines = input_data.split("\n")
+    N = len(lines)
+    for i in range(0, N):
+        for j in range(i + 1, N):
+            is_true, result = compare_two_lines(lines[i].strip(), lines[j].strip())
+            if is_true:
+                return result
     return ""
+
+
+def part2_optimal() -> str:
+    lines = input_data.strip().split("\n")
+    seen = set()
+
+    for line in lines:
+        current_variants = [line[:i] + line[i + 1:] for i in range(len(line))]
+        for v in current_variants:
+            if v in seen:
+                return v
+        seen.update(current_variants)
+
+
+def compare_two_lines(line1: str, line2: str) -> (bool, str):
+    error_budget = 0
+    common_chars = ""
+    for i in range(len(line1)):
+        if line1[i] != line2[i]:
+            error_budget += 1
+            if error_budget > 1:
+                return False, ""
+            continue
+        common_chars += line1[i]
+    return True, common_chars
 
 
 def build_occurrence(line: str) -> dict[str, int]:
@@ -29,17 +60,6 @@ def build_occurrence(line: str) -> dict[str, int]:
     return d
 
 
-def compare_two_lines(line1: str, line2: str) -> str | None:
-    result = ""
-    for i in range(len(line1)):
-        if line1[i] == line2[i]:
-            result += line1[i]
-
-    if len(result) == len(line1) - 1:
-        return result
-    else:
-        return None
-
-
 if __name__ == '__main__':
     print(f"Part1 solution is: {part1()}")
+    print(f"Part2 solution is: {part2_optimal()}")
